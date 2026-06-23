@@ -1,12 +1,17 @@
-import sys
+
 import os
-
-sys.path.append(os.path.abspath("./build"))
-
-import agent_data
+import sys
 
 
-os.system('cls')
+agent_path = os.path.abspath("./Release")
+sys.path.append(agent_path)
 
-dc = agent_data.DataContainer()
-print(dc.return_data())
+import Tetris_AGENT
+
+test = Tetris_AGENT.Game()
+
+for i in range(10) :
+
+  print(test.step(Tetris_AGENT.Actions.HARD_DROP))
+
+  print(test.get_rugosity())

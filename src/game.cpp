@@ -3,11 +3,6 @@
 #include <algorithm>
 #include <random>
 
-// #include <pybind11/pybind11.h>
-// #include <pybind11/stl.h>
-
-// namespace py = pybind11;
-
 #include <game.hpp>
 
 /* TODO:
@@ -51,7 +46,7 @@ float Game::step(Actions step_action)
         rotate_tetromino(Rotation::COUNTER_CLOCKWISE);
         break;
     case Actions::HARD_DROP:
-        move_tetromino(Movement_direction::RIGHT);
+        hard_drop();
         break;
     case Actions::HOLD:
         if (hold_used == false)
@@ -64,7 +59,7 @@ float Game::step(Actions step_action)
         break;
     }
 
-    if (check_should_set_piece)
+    if (step_action == Actions::HARD_DROP)
     {
 
         int lines = clear_lines();
@@ -87,6 +82,21 @@ float Game::step(Actions step_action)
     // tick_gravity();
 
     return -0.01f;
+}
+
+void Game::reset()
+{
+
+    for (int x = 0; x < board.size(); x++)
+    {
+        for (int y = 0; y < board.at(x).size(); y++)
+        {
+            board.at(x).at(y) = Cell_state::EMPTY;
+        }
+    }
+
+    generate_piece_queue();
+    update_piece_queue();
 }
 
 #pragma region GETTERS
@@ -174,6 +184,8 @@ int Game::get_rugosity()
 
         rugosity += std::abs(difference);
     }
+
+    return rugosity;
 }
 
 int Game::get_current_peice_type()
@@ -201,6 +213,11 @@ std::array<int, piece_queue_size> Game::get_piece_queue()
     }
 
     return int_queue;
+}
+
+int Game::get_score()
+{
+    return score;
 }
 
 #pragma endregion
@@ -249,6 +266,31 @@ void Game::set_piece(Piece_type new_piece)
 }
 
 #pragma endregion
+
+void Game::increase_score(int lines)
+{
+
+    switch (lines)
+    {
+    case 0:
+        break;
+    case 1:
+        score += 100;
+        break;
+    case 2:
+        score += 200;
+        break;
+    case 3:
+        score += 400;
+        break;
+    case 4:
+        score += 1000;
+        break;
+
+    default:
+        break;
+    }
+}
 
 std::array<Position, 4> Game::project_movement(Movement_direction dir)
 {
@@ -456,7 +498,10 @@ bool Game::check_touched_floor(std::array<Position, 4> projected_positions)
 
 bool Game::check_should_set_piece(std::array<Position, 4> projected_position)
 {
-    return (check_touched_floor(projected_position) || check_collision(projected_position));
+    bool test_floor = check_touched_floor(projected_position);
+    bool test_collision = check_collision(projected_position);
+
+    return test_floor || test_collision;
 }
 
 void Game::piece_was_set()
@@ -465,6 +510,7 @@ void Game::piece_was_set()
     set_piece(piece_queue.at(queue_index));
     update_piece_queue();
     hold_used = false;
+    increase_score(clear_lines());
 }
 
 void Game::tick_gravity()
@@ -473,7 +519,7 @@ void Game::tick_gravity()
 
     std::array<Position, 4> projected_position = project_movement(Movement_direction::DOWN);
 
-    if (check_should_set_piece)
+    if (check_should_set_piece(projected_position))
     {
         piece_was_set();
     }
@@ -495,9 +541,10 @@ void Game::hard_drop()
 
         std::array<Position, 4> projected_position = project_movement(Movement_direction::DOWN);
 
-        if (check_should_set_piece)
+        if (check_should_set_piece(projected_position))
         {
             piece_was_set();
+            break;
         }
 
         for (int i = 0; i < active_tetromino.pieces_positions.size(); i++)

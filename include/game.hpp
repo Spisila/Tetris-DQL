@@ -1,7 +1,5 @@
 #pragma once
 
-#include <raylib.h>
-
 #include <vector>
 #include <array>
 #include <unordered_map>
@@ -190,6 +188,8 @@ public:
 
   float step(Actions step_action);
 
+  void reset();
+
   Position get_pivot_position();
 
   std::array<int, BOARD_SIZE_X> get_board_height();
@@ -203,10 +203,12 @@ public:
   std::array<Position, 4> get_active_tetromino_pieces_positions();
   std::array<int, 5> get_piece_queue();
 
-  int return_data();
+  int get_score();
 
   void set_tetromino_cell_state(Cell_state state);
   void set_piece(Piece_type new_piece);
+  void increase_score(int lines);
+
   void update_active_tetromino();
 
   void tick_gravity();
