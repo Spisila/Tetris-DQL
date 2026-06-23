@@ -11,7 +11,13 @@ FetchContent_Declare(
     raylib
     GIT_REPOSITORY https://github.com/raysan5/raylib.git
 )
-FetchContent_MakeAvailable(raylib)
+
+FetchContent_Declare(
+    pybind11
+    GIT_REPOSITORY https://github.com/pybind/pybind11.git
+)
+
+FetchContent_MakeAvailable(raylib pybind11)
 
 
 include_directories(
@@ -19,7 +25,8 @@ include_directories(
 )
 
 add_executable(CPP_TETRIS src/main.cpp
-src/game.cpp)
+src/game.cpp
+src/game_renderer.cpp)
 
 target_link_libraries(CPP_TETRIS PRIVATE raylib)
 

@@ -7,16 +7,20 @@
 #include <unordered_map>
 #include <random>
 
+constexpr float LOSS_SCORE_WEIGHT = -100.0f;
+constexpr float LINES_CLEARED_WEIGHT = 10.0f;
+constexpr float TOTAL_HEIGHT_WEIGHT = 0.5f;
+constexpr float HOLES_WEIGHT = 4.0f;
+constexpr float RUGOSITY_WEIGHT = 0.2f;
+
 constexpr int BOARD_SIZE_X = 10;
 constexpr int BOARD_SIZE_Y = 24;
 
 constexpr int ENTIRE_BOARD_SIZE = BOARD_SIZE_X * BOARD_SIZE_Y;
 
-constexpr Color SPAWN_COLOR = Color{75, 75, 75, 255};
-constexpr Color BOARD_COLOR = Color{15, 15, 15, 255};
-constexpr Color FILLED_COLOR = Color{100, 100, 100, 255};
-
 constexpr int CELL_SIZE = 30;
+
+constexpr int piece_queue_size = 5;
 
 enum class Cell_state
 {
@@ -149,6 +153,17 @@ inline std::unordered_map<Piece_type, std::array<Position, 3>> tetromino_type_ro
 
 };
 
+enum class Actions
+{
+  MOVE_LEFT,
+  MOVE_RIGHT,
+  SOFT_DROP,
+  ROTATE_CLOCKWISE,
+  ROTATE_COUNTER_CLOCKWISE,
+  HARD_DROP,
+  HOLD
+};
+
 class Game
 {
 private:
@@ -173,7 +188,17 @@ public:
 
   Game(/* args */);
 
+  float step(Actions step_action);
+
+  Position get_pivot_position();
+
   std::array<int, BOARD_SIZE_X> get_board_height();
+  int get_aggregate_height();
+
+  int get_amount_of_holes();
+
+  int get_rugosity();
+
   int get_current_peice_type();
   std::array<Position, 4> get_active_tetromino_pieces_positions();
   std::array<int, 5> get_piece_queue();
@@ -197,16 +222,17 @@ public:
   void generate_piece_queue();
   void update_piece_queue();
 
+  void piece_was_set();
+
   int clear_lines();
 
   std::array<Position, 4> project_movement(Movement_direction dir);
   std::array<Position, 4> project_rotation(Rotation rot);
 
+  bool check_should_set_piece(std::array<Position, 4>);
   bool check_collision(const std::array<Position, 4>);
-  bool check_out_of_bounds(const std::array<Position, 4> projected_positions);
+  bool check_out_of_lateral_bounds(const std::array<Position, 4> projected_positions);
   bool check_touched_floor(const std::array<Position, 4> projected_positions);
-
-  void draw_board();
 
   ~Game();
 };

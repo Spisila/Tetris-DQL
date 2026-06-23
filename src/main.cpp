@@ -20,6 +20,11 @@ constexpr Color BACKGROUND_COLOR = Color{25, 25, 75, 255};
 constexpr int OFFSET_X = SCREEN_WIDTH / 2 - 250;
 constexpr int OFFSET_Y = SCREEN_HEIGHT / 2 - 300;
 
+constexpr Color SPAWN_COLOR = Color{75, 75, 75, 255};
+constexpr Color BOARD_COLOR = Color{15, 15, 15, 255};
+constexpr Color FILLED_COLOR = Color{100, 100, 100, 255};
+
+
 void draw_board(const Game &game)
 {
   for (int x = 0; x < game.board.size(); x++)
@@ -112,7 +117,6 @@ char piece_type_to_char(Piece_type piece)
 
 int get_game_data(Game game)
 {
-
   return game.get_current_peice_type();
 }
 
@@ -134,6 +138,7 @@ int main()
   {
     main_game.get_piece_queue();
 
+    // TODO: Gravity not updating, removed timer from inside the function
     main_game.tick_gravity();
 
     if (IsKeyPressed(KEY_LEFT))

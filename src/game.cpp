@@ -3,8 +3,6 @@
 #include <algorithm>
 #include <random>
 
-#include <raylib.h>
-
 // #include <pybind11/pybind11.h>
 // #include <pybind11/stl.h>
 
@@ -18,7 +16,7 @@ Implement wall kicks
 
 Game::Game()
 {
-
+    // initialize the board as empty
     for (int x = 0; x < board.size(); x++)
     {
         for (int y = 0; y < board.at(x).size(); y++)
@@ -32,26 +30,66 @@ Game::~Game()
 {
 }
 
-class DataContainer
+float Game::step(Actions step_action)
 {
-public:
-    DataContainer() {}
 
-    int return_data()
+    switch (step_action)
     {
-        return 5;
+    case Actions::MOVE_RIGHT:
+        move_tetromino(Movement_direction::RIGHT);
+        break;
+    case Actions::MOVE_LEFT:
+        move_tetromino(Movement_direction::RIGHT);
+        break;
+    case Actions::SOFT_DROP:
+        move_tetromino(Movement_direction::DOWN);
+        break;
+    case Actions::ROTATE_CLOCKWISE:
+        rotate_tetromino(Rotation::CLOCKWISE);
+        break;
+    case Actions::ROTATE_COUNTER_CLOCKWISE:
+        rotate_tetromino(Rotation::COUNTER_CLOCKWISE);
+        break;
+    case Actions::HARD_DROP:
+        move_tetromino(Movement_direction::RIGHT);
+        break;
+    case Actions::HOLD:
+        if (hold_used == false)
+        {
+            hold_used = true;
+            hold_current_piece();
+        }
+        break;
+    default:
+        break;
     }
 
-private:
-};
+    if (check_should_set_piece)
+    {
 
-// PYBIND11_MODULE(agent_data, ag)
-// {
-//     ag.doc() = "Agent data";
-//     py::class_<DataContainer>(ag, "DataContainer")
-//         .def(py::init<>())
-//         .def("return_data", &DataContainer::return_data, "PEPE");
-// }
+        int lines = clear_lines();
+        int total_height = get_aggregate_height();
+        int total_holes = get_amount_of_holes();
+        int rugosity = get_rugosity();
+
+        std::array<Position, 4> spawn_positions = {Position(5, 1), Position(0, 0), Position(0, 0), Position(0, 0)};
+
+        if (check_collision(spawn_positions))
+        {
+            return LOSS_SCORE_WEIGHT;
+        }
+
+        float reward = (lines * LINES_CLEARED_WEIGHT) - (total_height * TOTAL_HEIGHT_WEIGHT) - (total_holes * HOLES_WEIGHT) - (rugosity * RUGOSITY_WEIGHT);
+
+        return reward;
+    }
+
+    // tick_gravity();
+
+    return -0.01f;
+}
+
+#pragma region GETTERS
 
 std::array<int, BOARD_SIZE_X> Game::get_board_height()
 {
@@ -72,10 +110,80 @@ std::array<int, BOARD_SIZE_X> Game::get_board_height()
     return heights;
 }
 
-int Game::get_current_peice_type()
+int Game::get_aggregate_height()
 {
 
+    auto columns_heights = get_board_height();
+
+    int total_height = 0;
+
+    for (int i = 0; i < columns_heights.size(); i++)
+    {
+        total_height += columns_heights.at(i);
+    }
+
+    return total_height;
+}
+
+int Game::get_amount_of_holes()
+{
+
+    int holes = 0;
+
+    for (int x = 0; x < board.size(); x++)
+    {
+        for (int y = 0; y < board.at(x).size(); y++)
+        {
+
+            // If is the first line there can be no empty cell above it
+            if (y == 0)
+            {
+                continue;
+            }
+
+            auto cell_i = board.at(x).at(y);
+            auto cell_above = board.at(x).at(y - 1);
+
+            if (cell_i == Cell_state::EMPTY)
+            {
+
+                if (cell_above == Cell_state::FILLED)
+                {
+                    holes++;
+                }
+            }
+        }
+    }
+
+    return holes;
+}
+
+int Game::get_rugosity()
+{
+
+    auto column_heights = get_board_height();
+
+    int rugosity = 0;
+
+    for (int i = 0; i < column_heights.size() - 1; i++)
+    {
+
+        int difference = 0;
+
+        difference = column_heights.at(i) - column_heights.at(i + 1);
+
+        rugosity += std::abs(difference);
+    }
+}
+
+int Game::get_current_peice_type()
+{
     return static_cast<int>(active_tetromino.current_type);
+}
+
+Position Game::get_pivot_position()
+{
+    return active_tetromino.pieces_positions[0];
 }
 
 std::array<Position, 4> Game::get_active_tetromino_pieces_positions()
@@ -83,17 +191,21 @@ std::array<Position, 4> Game::get_active_tetromino_pieces_positions()
     return active_tetromino.pieces_positions;
 }
 
-std::array<int, 5> Game::get_piece_queue()
+std::array<int, piece_queue_size> Game::get_piece_queue()
 {
-    std::array<int, 5> int_queue{};
+    std::array<int, piece_queue_size> int_queue{};
 
-    for (int i = 0; i < 5; i++)
+    for (int i = 0; i < piece_queue_size; i++)
     {
         int_queue.at(i) = static_cast<int>(known_piece_queue.at(i));
     }
 
     return int_queue;
 }
+
+#pragma endregion
+
+#pragma region SETTERS
 
 void Game::set_tetromino_cell_state(Cell_state state)
 {
@@ -135,6 +247,8 @@ void Game::set_piece(Piece_type new_piece)
 
     set_tetromino_cell_state(Cell_state::ACTIVE);
 }
+
+#pragma endregion
 
 std::array<Position, 4> Game::project_movement(Movement_direction dir)
 {
@@ -195,7 +309,7 @@ void Game::move_tetromino(Movement_direction dir)
 
     std::array<Position, 4> projected_position = project_movement(dir);
 
-    if (check_out_of_bounds(projected_position) || check_collision(projected_position))
+    if (check_out_of_lateral_bounds(projected_position) || check_collision(projected_position))
     {
         return;
     }
@@ -208,6 +322,7 @@ void Game::move_tetromino(Movement_direction dir)
     }
     set_tetromino_cell_state(Cell_state::ACTIVE);
 }
+
 // index + (current +/- 1) mod(4)
 Piece_type Game::change_tetrominoe_rotation(Rotation rot)
 {
@@ -245,7 +360,7 @@ Piece_type Game::change_tetrominoe_rotation(Rotation rot)
         break;
     default:
         break;
-    } 
+    }
 
     int new_rotated_piece = general_index + ((current_index + step) % 4);
 
@@ -280,7 +395,7 @@ void Game::rotate_tetromino(Rotation rot)
 
     std::array<Position, 4> projected_rotation = project_rotation(rot);
 
-    if (check_out_of_bounds(projected_rotation) || check_collision(projected_rotation))
+    if (check_out_of_lateral_bounds(projected_rotation) || check_collision(projected_rotation))
     {
         return;
     }
@@ -311,7 +426,7 @@ bool Game::check_collision(std::array<Position, 4> projected_positions)
     return false;
 }
 
-bool Game::check_out_of_bounds(std::array<Position, 4> projected_positions)
+bool Game::check_out_of_lateral_bounds(std::array<Position, 4> projected_positions)
 {
 
     for (int i = 0; i < 4; i++)
@@ -339,52 +454,51 @@ bool Game::check_touched_floor(std::array<Position, 4> projected_positions)
     return false;
 }
 
+bool Game::check_should_set_piece(std::array<Position, 4> projected_position)
+{
+    return (check_touched_floor(projected_position) || check_collision(projected_position));
+}
+
+void Game::piece_was_set()
+{
+    set_tetromino_cell_state(Cell_state::FILLED);
+    set_piece(piece_queue.at(queue_index));
+    update_piece_queue();
+    hold_used = false;
+}
+
 void Game::tick_gravity()
 {
-    if (gravity_counter >= GRAVITY_TICKS)
+    set_tetromino_cell_state(Cell_state::EMPTY);
+
+    std::array<Position, 4> projected_position = project_movement(Movement_direction::DOWN);
+
+    if (check_should_set_piece)
     {
-        set_tetromino_cell_state(Cell_state::EMPTY);
-
-        std::array<Position, 4> projected_position = project_movement(Movement_direction::DOWN);
-
-        if (check_touched_floor(projected_position) || check_collision(projected_position))
-        {
-            set_tetromino_cell_state(Cell_state::FILLED);
-            set_piece(piece_queue.at(queue_index));
-            update_piece_queue();
-            hold_used = false;
-            return;
-        }
-
-        for (int i = 0; i < active_tetromino.pieces_positions.size(); i++)
-        {
-            active_tetromino.pieces_positions.at(i) = projected_position.at(i);
-        }
-        gravity_counter = 0;
-
-        set_tetromino_cell_state(Cell_state::ACTIVE);
-        return;
+        piece_was_set();
     }
 
-    gravity_counter++;
+    for (int i = 0; i < active_tetromino.pieces_positions.size(); i++)
+    {
+        active_tetromino.pieces_positions.at(i) = projected_position.at(i);
+    }
+
+    set_tetromino_cell_state(Cell_state::ACTIVE);
+    return;
 }
 
 void Game::hard_drop()
 {
     while (true)
     {
+        set_tetromino_cell_state(Cell_state::EMPTY);
+
         std::array<Position, 4> projected_position = project_movement(Movement_direction::DOWN);
 
-        if (check_touched_floor(projected_position) || check_collision(projected_position))
+        if (check_should_set_piece)
         {
-            set_tetromino_cell_state(Cell_state::FILLED);
-            set_piece(piece_queue.at(queue_index));
-            update_piece_queue();
-            hold_used = false;
-            return;
+            piece_was_set();
         }
-
-        set_tetromino_cell_state(Cell_state::EMPTY);
 
         for (int i = 0; i < active_tetromino.pieces_positions.size(); i++)
         {
