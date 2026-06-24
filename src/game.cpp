@@ -79,7 +79,13 @@ float Game::step(Actions step_action)
         return reward;
     }
 
-    // tick_gravity();
+    gravity_counter += 1;
+
+    if (gravity_counter >= 10)
+    {
+        tick_gravity();
+        gravity_counter = 0;
+    }
 
     return -0.01f;
 }
@@ -249,7 +255,7 @@ void Game::set_piece(Piece_type new_piece)
 
     if (check_collision(spawn_positions))
     {
-        std::cout << "GAME OVER!" << std::endl;
+        // std::cout << "GAME OVER!" << std::endl;
         // exit(0);
         return;
     }

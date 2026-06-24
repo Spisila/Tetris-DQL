@@ -33,11 +33,13 @@ PYBIND11_MODULE(Tetris_AGENT, m)
         // TODO: Implement reset method
         .def("reset", &Game::reset, "Restarts environment")
 
+        .def("get_board_height", &Game::get_board_height, "Returns all the heights")
         .def("get_aggregate_height", &Game::get_aggregate_height, "Returns the sum of the height of all columns")
         .def("get_amount_of_holes", &Game::get_amount_of_holes, "Returns the amount of holes in the board")
         .def("get_rugosity", &Game::get_rugosity, "Returns the rugosity of the board")
         .def("get_current_peice_type", &Game::get_current_peice_type, "Returns the current piece being placed")
-        .def("get_piece_queue", &Game::get_piece_queue, "Returns the queue of pieces");
+        .def("get_piece_queue", &Game::get_piece_queue, "Returns the queue of pieces")
+        .def("get_score", &Game::get_score, "Returns the scroe");
 
     // .def("get_board", &Game::get_board, "Return entire board");
 }
