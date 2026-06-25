@@ -5,6 +5,8 @@
 
 #include <game.hpp>
 
+#include <raylib.h>
+
 /* TODO:
 Implement wall kicks
 */
@@ -34,7 +36,7 @@ float Game::step(Actions step_action)
         move_tetromino(Movement_direction::RIGHT);
         break;
     case Actions::MOVE_LEFT:
-        move_tetromino(Movement_direction::RIGHT);
+        move_tetromino(Movement_direction::LEFT);
         break;
     case Actions::SOFT_DROP:
         move_tetromino(Movement_direction::DOWN);
@@ -59,8 +61,10 @@ float Game::step(Actions step_action)
         break;
     }
 
-    if (step_action == Actions::HARD_DROP)
+    if (piece_set == true)
     {
+
+        piece_set = false;
 
         int lines = clear_lines();
         int total_height = get_aggregate_height();
@@ -81,7 +85,7 @@ float Game::step(Actions step_action)
 
     gravity_counter += 1;
 
-    if (gravity_counter >= 10)
+    if (gravity_counter >= 1)
     {
         tick_gravity();
         gravity_counter = 0;
@@ -92,6 +96,7 @@ float Game::step(Actions step_action)
 
 void Game::reset()
 {
+    lost = false;
 
     for (int x = 0; x < board.size(); x++)
     {
@@ -103,6 +108,81 @@ void Game::reset()
 
     generate_piece_queue();
     update_piece_queue();
+
+    set_piece(Piece_type::J_PIECE_0);
+}
+
+void Game::init_graphics()
+{
+    SetTargetFPS(60);
+
+    SetTraceLogLevel(LOG_WARNING);
+
+    InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Test");
+}
+
+void Game::render(std::string &generation_counter)
+{
+    PollInputEvents();
+
+    if (!WindowShouldClose())
+    {
+        BeginDrawing();
+        ClearBackground(BACKGROUND_COLOR);
+
+        DrawText(TextFormat("Generation = %s", generation_counter), SCREEN_WIDTH / 2 + 400, SCREEN_HEIGHT / 2 - 400, 30, RED);
+
+        for (int x = 0; x < board.size(); x++)
+        {
+            for (int y = 0; y < board.at(x).size(); y++)
+            {
+                Color cell_color;
+
+                if (y < 4)
+                {
+                    cell_color = SPAWN_COLOR;
+                }
+                else
+                {
+                    cell_color = BOARD_COLOR;
+                }
+
+                if (board.at(x).at(y) == Cell_state::FILLED)
+                {
+                    cell_color = FILLED_COLOR;
+                }
+
+                if (board.at(x).at(y) == Cell_state::ACTIVE)
+                {
+                    int active_piece = static_cast<int>(active_tetromino.current_type);
+
+                    if (active_piece < 4)
+                        cell_color = SKYBLUE;
+                    else if (active_piece >= 4 && active_piece < 8)
+                        cell_color = DARKBLUE;
+                    else if (active_piece >= 8 && active_piece < 12)
+                        cell_color = ORANGE;
+                    else if (active_piece >= 12 && active_piece < 16)
+                        cell_color = YELLOW;
+                    else if (active_piece >= 16 && active_piece < 20)
+                        cell_color = GREEN;
+                    else if (active_piece >= 20 && active_piece < 24)
+                        cell_color = PURPLE;
+                    else if (active_piece >= 24 && active_piece < 28)
+                        cell_color = RED;
+                }
+
+                DrawRectangle(OFFSET_X + x * CELL_SIZE, OFFSET_Y + y * CELL_SIZE, CELL_SIZE - 1, CELL_SIZE - 1, cell_color);
+            }
+        }
+
+        EndDrawing();
+    }
+}
+
+void Game::close_graphics()
+{
+    CloseWindow();
 }
 
 #pragma region GETTERS
@@ -257,6 +337,7 @@ void Game::set_piece(Piece_type new_piece)
     {
         // std::cout << "GAME OVER!" << std::endl;
         // exit(0);
+        lost = true;
         return;
     }
 
@@ -269,6 +350,11 @@ void Game::set_piece(Piece_type new_piece)
     active_tetromino.current_type = new_piece;
 
     set_tetromino_cell_state(Cell_state::ACTIVE);
+}
+
+void Game::reset_score()
+{
+    score = 0;
 }
 
 #pragma endregion
@@ -512,11 +598,17 @@ bool Game::check_should_set_piece(std::array<Position, 4> projected_position)
 
 void Game::piece_was_set()
 {
+    piece_set = true;
     set_tetromino_cell_state(Cell_state::FILLED);
     set_piece(piece_queue.at(queue_index));
     update_piece_queue();
     hold_used = false;
     increase_score(clear_lines());
+}
+
+void Game::increase_gravity_counter()
+{
+    gravity_counter++;
 }
 
 void Game::tick_gravity()
@@ -528,6 +620,7 @@ void Game::tick_gravity()
     if (check_should_set_piece(projected_position))
     {
         piece_was_set();
+        return;
     }
 
     for (int i = 0; i < active_tetromino.pieces_positions.size(); i++)
@@ -536,7 +629,6 @@ void Game::tick_gravity()
     }
 
     set_tetromino_cell_state(Cell_state::ACTIVE);
-    return;
 }
 
 void Game::hard_drop()

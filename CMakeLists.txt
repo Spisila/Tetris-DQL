@@ -37,6 +37,8 @@ pybind11_add_module(Tetris_AGENT
     src/bindings.cpp
 )
 
+target_link_libraries(Tetris_AGENT PRIVATE raylib)
+
 set_target_properties(Tetris_AGENT PROPERTIES
     PREFIX ""
     SUFFIX ".pyd"

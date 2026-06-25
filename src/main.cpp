@@ -9,21 +9,7 @@
 
 #include <vector>
 
-// Fix this to relative path later
 #include <game.hpp>
-
-constexpr int SCREEN_WIDTH = 1800;
-constexpr int SCREEN_HEIGHT = 900;
-
-constexpr Color BACKGROUND_COLOR = Color{25, 25, 75, 255};
-
-constexpr int OFFSET_X = SCREEN_WIDTH / 2 - 250;
-constexpr int OFFSET_Y = SCREEN_HEIGHT / 2 - 300;
-
-constexpr Color SPAWN_COLOR = Color{75, 75, 75, 255};
-constexpr Color BOARD_COLOR = Color{15, 15, 15, 255};
-constexpr Color FILLED_COLOR = Color{100, 100, 100, 255};
-
 
 void draw_board(const Game &game)
 {
@@ -115,12 +101,6 @@ char piece_type_to_char(Piece_type piece)
   }
 }
 
-int get_game_data(Game game)
-{
-  return game.get_current_peice_type();
-}
-
-
 int main()
 {
 
@@ -136,10 +116,18 @@ int main()
 
   while (!WindowShouldClose())
   {
-    main_game.get_piece_queue();
+    // main_game.get_piece_queue();
 
-    // TODO: Gravity not updating, removed timer from inside the function
-    main_game.tick_gravity();
+    main_game.increase_gravity_counter();
+
+    if (main_game.gravity_counter >= 20)
+    {
+      std::cout << main_game.gravity_counter << std::endl;
+      main_game.tick_gravity();
+      main_game.gravity_counter = 0;
+    }
+
+#pragma region Inputs
 
     if (IsKeyPressed(KEY_LEFT))
     {
@@ -177,6 +165,8 @@ int main()
     {
       main_game.hard_drop();
     }
+
+#pragma endregion
 
     int cleared_lines = main_game.clear_lines();
 

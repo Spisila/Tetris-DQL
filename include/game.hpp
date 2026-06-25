@@ -1,9 +1,24 @@
 #pragma once
 
+#include <raylib.h>
+
 #include <vector>
 #include <array>
 #include <unordered_map>
 #include <random>
+
+constexpr Color SPAWN_COLOR = Color{75, 75, 75, 255};
+constexpr Color BOARD_COLOR = Color{15, 15, 15, 255};
+constexpr Color FILLED_COLOR = Color{100, 100, 100, 255};
+
+constexpr int SCREEN_WIDTH = 1800;
+constexpr int SCREEN_HEIGHT = 900;
+constexpr int CELL_SIZE = 30;
+
+constexpr Color BACKGROUND_COLOR = Color{25, 25, 75, 255};
+
+constexpr int OFFSET_X = SCREEN_WIDTH / 2 - 250;
+constexpr int OFFSET_Y = SCREEN_HEIGHT / 2 - 300;
 
 constexpr float LOSS_SCORE_WEIGHT = -100.0f;
 constexpr float LINES_CLEARED_WEIGHT = 10.0f;
@@ -15,8 +30,6 @@ constexpr int BOARD_SIZE_X = 10;
 constexpr int BOARD_SIZE_Y = 24;
 
 constexpr int ENTIRE_BOARD_SIZE = BOARD_SIZE_X * BOARD_SIZE_Y;
-
-constexpr int CELL_SIZE = 30;
 
 constexpr int piece_queue_size = 5;
 
@@ -177,6 +190,9 @@ public:
   int hold_piece_index = -1;
   bool hold_used = false;
 
+  bool lost = false;
+  bool piece_set = false;
+
   int queue_index = 0;
   std::array<Piece_type, 14> piece_queue;
   std::array<Piece_type, 5> known_piece_queue;
@@ -189,6 +205,16 @@ public:
   float step(Actions step_action);
 
   void reset();
+
+  // ---------------
+
+  void init_graphics();
+
+  void render(std::string &generation_counter);
+
+  void close_graphics();
+
+  // ---------------
 
   Position get_pivot_position();
 
@@ -207,7 +233,10 @@ public:
 
   void set_tetromino_cell_state(Cell_state state);
   void set_piece(Piece_type new_piece);
+
   void increase_score(int lines);
+  void reset_score();
+  void increase_gravity_counter();
 
   void update_active_tetromino();
 

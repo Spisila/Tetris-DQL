@@ -28,6 +28,13 @@ PYBIND11_MODULE(Tetris_AGENT, m)
     py::class_<Game>(m, "Game")
         .def(py::init<>())
 
+        .def_readwrite("lost", &Game::lost, "Boolean to check if game is lost")
+        .def_readwrite("piece_set", &Game::piece_set, "Boolean to check if piece was set")
+
+        .def("init_graphics", &Game::init_graphics, "Initializes window")
+        .def("render", &Game::render, "Renders the board")
+        .def("close_graphics", &Game::close_graphics, "Closes window")
+
         .def("step", &Game::step, "Step and returns reward")
 
         // TODO: Implement reset method
