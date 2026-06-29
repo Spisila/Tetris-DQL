@@ -21,7 +21,7 @@ constexpr int OFFSET_X = SCREEN_WIDTH / 2 - 250;
 constexpr int OFFSET_Y = SCREEN_HEIGHT / 2 - 300;
 
 constexpr float LOSS_SCORE_WEIGHT = -100.0f;
-constexpr float LINES_CLEARED_WEIGHT = 10.0f;
+constexpr float LINES_CLEARED_WEIGHT = 50.0f;
 constexpr float TOTAL_HEIGHT_WEIGHT = 0.5f;
 constexpr float HOLES_WEIGHT = 4.0f;
 constexpr float RUGOSITY_WEIGHT = 0.2f;
@@ -114,6 +114,15 @@ struct Position
   Position(int _x, int _y) : x(_x), y(_y) {}
 };
 
+struct StepData
+{
+
+  float reward;
+
+  bool piece_placed{false};
+  bool lost{false};
+};
+
 // First position is the pivot
 struct Tetromino
 {
@@ -178,15 +187,19 @@ enum class Actions
 class Game
 {
 private:
+  int id;
+
   int GRAVITY_TICKS = 30;
 
-  std::random_device rd;
-  std::mt19937 gen{rd()};
+  std::mt19937 gen;
 
-public:
+  
+  public:
   Tetromino active_tetromino;
   std::array<std::array<Cell_state, BOARD_SIZE_Y>, BOARD_SIZE_X> board;
-
+  
+  Actions next_action{Actions::HOLD};
+  
   int hold_piece_index = -1;
   bool hold_used = false;
 
@@ -200,11 +213,13 @@ public:
   int gravity_counter = 0;
   int score = 0;
 
-  Game(/* args */);
+  Game(int _id);
 
-  float step(Actions step_action);
+  void step();
 
   void reset();
+
+  StepData calculate_reward();
 
   // ---------------
 
@@ -215,6 +230,8 @@ public:
   void close_graphics();
 
   // ---------------
+
+  int get_id();
 
   Position get_pivot_position();
 
@@ -230,6 +247,10 @@ public:
   std::array<int, 5> get_piece_queue();
 
   int get_score();
+
+  int format_piece(int piece);
+
+  std::vector<int> get_game_state();
 
   void set_tetromino_cell_state(Cell_state state);
   void set_piece(Piece_type new_piece);

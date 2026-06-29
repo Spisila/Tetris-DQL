@@ -11,8 +11,13 @@
 Implement wall kicks
 */
 
-Game::Game()
+Game::Game(int _id)
 {
+
+    id = _id;
+
+    gen.seed(std::random_device{}());
+
     // initialize the board as empty
     for (int x = 0; x < board.size(); x++)
     {
@@ -21,16 +26,20 @@ Game::Game()
             board.at(x).at(y) = Cell_state::EMPTY;
         }
     }
+
+    generate_piece_queue();
+    update_piece_queue();
+    set_piece(piece_queue.at(0));
 }
 
 Game::~Game()
 {
 }
 
-float Game::step(Actions step_action)
+void Game::step()
 {
 
-    switch (step_action)
+    switch (next_action)
     {
     case Actions::MOVE_RIGHT:
         move_tetromino(Movement_direction::RIGHT);
@@ -60,38 +69,6 @@ float Game::step(Actions step_action)
     default:
         break;
     }
-
-    if (piece_set == true)
-    {
-
-        piece_set = false;
-
-        int lines = clear_lines();
-        int total_height = get_aggregate_height();
-        int total_holes = get_amount_of_holes();
-        int rugosity = get_rugosity();
-
-        std::array<Position, 4> spawn_positions = {Position(5, 1), Position(0, 0), Position(0, 0), Position(0, 0)};
-
-        if (check_collision(spawn_positions))
-        {
-            return LOSS_SCORE_WEIGHT;
-        }
-
-        float reward = (lines * LINES_CLEARED_WEIGHT) - (total_height * TOTAL_HEIGHT_WEIGHT) - (total_holes * HOLES_WEIGHT) - (rugosity * RUGOSITY_WEIGHT);
-
-        return reward;
-    }
-
-    gravity_counter += 1;
-
-    if (gravity_counter >= 1)
-    {
-        tick_gravity();
-        gravity_counter = 0;
-    }
-
-    return -0.01f;
 }
 
 void Game::reset()
@@ -111,6 +88,48 @@ void Game::reset()
 
     set_piece(Piece_type::J_PIECE_0);
 }
+
+StepData Game::calculate_reward()
+{
+
+    if (piece_set == true)
+    {
+        piece_set = false;
+
+        int lines = clear_lines();
+        int total_height = get_aggregate_height();
+        int total_holes = get_amount_of_holes();
+        int rugosity = get_rugosity();
+
+        std::array<Position, 4> spawn_positions = {Position(5, 1), Position(0, 0), Position(0, 0), Position(0, 0)};
+
+        if (check_collision(spawn_positions))
+        {
+            StepData loss_step = {LOSS_SCORE_WEIGHT, true, true};
+            return loss_step;
+        }
+
+        float reward = (lines * LINES_CLEARED_WEIGHT) - (total_height * TOTAL_HEIGHT_WEIGHT) - (total_holes * HOLES_WEIGHT) - (rugosity * RUGOSITY_WEIGHT);
+
+        StepData piece_set_step = {reward, true, false};
+
+        return piece_set_step;
+    }
+
+    gravity_counter += 1;
+
+    if (gravity_counter >= 10)
+    {
+        tick_gravity();
+        gravity_counter = 0;
+    }
+
+    StepData gravity_step = {-0.005f, false, false};
+
+    return gravity_step;
+}
+
+// ----------
 
 void Game::init_graphics()
 {
@@ -254,6 +273,11 @@ int Game::get_amount_of_holes()
     return holes;
 }
 
+int Game::get_id()
+{
+    return id;
+}
+
 int Game::get_rugosity()
 {
 
@@ -276,7 +300,28 @@ int Game::get_rugosity()
 
 int Game::get_current_peice_type()
 {
-    return static_cast<int>(active_tetromino.current_type);
+
+    int piece_with_rotation = static_cast<int>(active_tetromino.current_type);
+
+    switch (piece_with_rotation)
+    {
+    case 0:
+        return 0;
+    case 4:
+        return 1;
+    case 8:
+        return 2;
+    case 12:
+        return 3;
+    case 16:
+        return 4;
+    case 20:
+        return 5;
+    case 24:
+        return 6;
+    default:
+        return -1;
+    }
 }
 
 Position Game::get_pivot_position()
@@ -304,6 +349,50 @@ std::array<int, piece_queue_size> Game::get_piece_queue()
 int Game::get_score()
 {
     return score;
+}
+
+std::vector<int> Game::get_game_state()
+{
+
+    int agg_height = get_aggregate_height();
+    int holes = get_amount_of_holes();
+    int rugosity = get_rugosity();
+    int current_piece_type = get_current_peice_type();
+
+    std::vector<int> data_basic = {agg_height, holes, rugosity, current_piece_type};
+
+    std::array<int, piece_queue_size> piece_queue = get_piece_queue();
+
+    for (int i = 0; i < piece_queue.size(); i++)
+    {
+
+        data_basic.push_back(format_piece(piece_queue[i]));
+    }
+
+    return data_basic;
+}
+
+int Game::format_piece(int piece)
+{
+    switch (piece)
+    {
+    case 0:
+        return 0;
+    case 4:
+        return 1;
+    case 8:
+        return 2;
+    case 12:
+        return 3;
+    case 16:
+        return 4;
+    case 20:
+        return 5;
+    case 24:
+        return 6;
+    default:
+        return -1;
+    }
 }
 
 #pragma endregion

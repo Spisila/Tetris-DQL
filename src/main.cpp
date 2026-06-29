@@ -104,7 +104,7 @@ char piece_type_to_char(Piece_type piece)
 int main()
 {
 
-  Game main_game;
+  Game main_game(1);
 
   SetTargetFPS(60);
 

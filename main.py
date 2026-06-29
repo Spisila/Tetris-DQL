@@ -49,49 +49,29 @@ class ReplayBuffer:
 def sigmoid_scale(x, k=5.0):
     return (2.0 / (1.0 + np.exp(-x / k))) - 1.0
 
-def get_current_state(game: Tetris_AGENT.Game) :
+def get_all_current_state(games: Tetris_AGENT.MultiGame) :
     
-    agg_height = game.get_aggregate_height()
-    holes = game.get_amount_of_holes()
-    rugosity = game.get_rugosity()
-    current_piece_type = game.get_current_peice_type()
-    piece_queue = game.get_piece_queue()
+    state_data = games.getStates()
 
-    formated_queue = []
-    for piece in piece_queue :
-        match piece :
-            case 0 : 
-                formated_queue.append(0)
-            case 4 :
-                formated_queue.append(1)
-            case 8 :
-                formated_queue.append(2)
-            case 12 :
-                formated_queue.append(3)
-            case 16 :
-                formated_queue.append(4)
-            case 20 :
-                formated_queue.append(5)
-            case 24 :
-                formated_queue.append(6)
+    scaled_states = []
 
+    for i in range(len(state_data)) :
 
-    scaled_height = sigmoid_scale(agg_height, 30)
-    scaled_holes = sigmoid_scale(holes, 5)
-    scaled_rugosity = sigmoid_scale(rugosity, 10)
-    scaled_current_piece = current_piece_type / 6
-    
-    queue_tensor = torch.tensor(formated_queue)
+        scaled_height = sigmoid_scale(state_data[i][0], 30)
+        scaled_holes = sigmoid_scale(state_data[i][1], 5)
+        scaled_rugosity = sigmoid_scale(state_data[i][2], 10)
+        scaled_current_piece = state_data[i][3] / 6
+        
+        queue_tensor = torch.tensor(state_data[i][4:])
+        hot_one_piece_queue = F.one_hot(queue_tensor, num_classes=7)
 
-    hot_one_piece_queue = F.one_hot(queue_tensor, num_classes=7)
+        flat_hot_one = hot_one_piece_queue.flatten()
 
-    flat_hot_one = hot_one_piece_queue.flatten()
+        concat = np.concatenate([[scaled_height], [scaled_holes], [scaled_rugosity], [scaled_current_piece], flat_hot_one])
 
-    # TODO: Pass piece queue as hotone encoding
+        scaled_states.append(concat)
 
-    concat = np.concatenate([[scaled_height], [scaled_holes], [scaled_rugosity], [scaled_current_piece], flat_hot_one])
-
-    return concat
+    return scaled_states
 
 def print_current_state(estado):
     
@@ -142,20 +122,15 @@ def back_propagation(samples) :
 
     optimizer.step()
 
-game = Tetris_AGENT.Game()
+games = Tetris_AGENT.MultiGame(128)
 
 model = DQN(input_dim=39, output_dim=7)
-
 target_model = DQN(input_dim=39, output_dim=7)
 
 optimizer = optim.Adam(model.parameters(), lr=0.001)
 criterion = nn.MSELoss()
 
 buffer = ReplayBuffer()
-
-# game.init_graphics()
-
-graphics_init = False
 
 epsilon = 1
 
@@ -164,79 +139,85 @@ sum_action_count = 0
 watch_generation_counter = 20
 
 pieces_placed = 0
+pieces_placed_counter = 0
 
-for generation in range(10_000_000):
-    game.reset()
-    done = False
-    
-    state = np.array(get_current_state(game), dtype=np.float32)
+games.resetAll()
+done = False
+
+state = np.array(get_all_current_state(games), dtype=np.float32)
+
+action_count = 0
+
+generation = 0
+
+generation_log_counter = 0
+
+while True:
 
     action_count = 0
 
-
-    if generation % 10000 == 0 :
-        if graphics_init == False :
-            graphics_init = True
-            game.init_graphics()
-
-    if graphics_init == True :
-        watch_generation_counter -= 1
-
-    if watch_generation_counter <= 0:
-        watch_generation_counter = 20
-        graphics_init = False
-        game.close_graphics()
-
-    if pieces_placed % 1000 == 0:
+    if pieces_placed_counter >= 500 :
         target_model.load_state_dict(model.state_dict())
+        pieces_placed_counter = 0
 
-    if generation % 500 == 0 and generation > 0:
-        print("GENERATION = " + str(generation) + " | SUM ACTIONS = " + str(sum_action_count) + " | SCORE = " + str(game.get_score()))
+    if generation_log_counter >= 100 and generation > 0:
+        print("GENERATION = " + str(generation) + " | PIECES PLACED = " + str(pieces_placed) + " | SUM SCORE = " + str(games.getSumScore()))
+        generation_log_counter = 0
         sum_action_count = 0
 
+    state_t = torch.FloatTensor(state)
+    q_values = model(state_t)
 
-    if epsilon > 0.05 :
-        epsilon -= 0.0001
 
+    action_count = len(q_values)
 
-    action_count = 0
+    action_indexes = []
 
-    while not done:
-
-        state_t = torch.FloatTensor(state)
-        q_values = model(state_t)
+    for i in range(action_count) :
 
         if random.random() > epsilon :
-            action_idx = torch.argmax(q_values).item()
+            action_indexes.append(torch.argmax(q_values[i]).item())
         else :
-            action_idx = random.randint(0,6)
+            action_indexes.append(random.randint(0,6))
+
+    action_enums = []
+
+    for i in range(len(action_indexes)) :
+
+        action_enums.append(Tetris_AGENT.Actions(action_indexes[i]))
+    
+    step_data = games.stepAll(action_enums)
+
+    next_state = np.array(get_all_current_state(games), dtype=np.float32)
 
 
-        action_enum = Tetris_AGENT.Actions(action_idx)
-        
-        reward = game.step(action_enum)
-        
-        next_state = np.array(get_current_state(game), dtype=np.float32)
-        
-        if game.lost == True:
-            done = True
-            
-        buffer.push(state, action_idx, reward, next_state, done)
-        state = next_state
+    for i in range(len(step_data)) :
 
-        
-        action_count += 1
-        sum_action_count += 1
+        step_i = step_data[i]
+
+        if step_i.piece_placed == True :
+            action_count += 1
 
 
-        if game.piece_set == True :
             pieces_placed += 1
-            if (buffer.size() > 100) :
-                experience_samples = buffer.sample(64)
+            pieces_placed_counter += 1
+            if (buffer.size() > 1000) :
+                experience_samples = buffer.sample(128)
                 back_propagation(experience_samples)
 
-        if graphics_init == True :
-            game.render(str(generation))
+        if step_i.lost == True :
+            games.resetThis(i)
+            generation += 1
+            generation_log_counter += 1
+            
 
 
-game.close_graphics()
+    for i in range(len(state)) :
+        
+        buffer.push(state[i], action_enums[i].value, step_data[i].reward, next_state[i], step_data[i].lost)
+    
+    state = next_state
+
+    if epsilon > 0.05 :
+        epsilon -= 0.00005
+
