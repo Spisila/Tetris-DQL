@@ -11,11 +11,15 @@
 
 #include <game.hpp>
 
-void draw_board(const Game &game)
+void drawBoard(const Game &game)
 {
-  for (int x = 0; x < game.board.size(); x++)
+
+  const auto &board = game.getBoard();
+  auto cells = board.getBoardCells();
+
+  for (int x = 0; x < cells.size(); x++)
   {
-    for (int y = 0; y < game.board.at(x).size(); y++)
+    for (int y = 0; y < cells[x].size(); y++)
     {
       Color cell_color;
 
@@ -28,14 +32,14 @@ void draw_board(const Game &game)
         cell_color = BOARD_COLOR;
       }
 
-      if (game.board.at(x).at(y) == Cell_state::FILLED)
+      if (cells[x][y] == Cell_state::FILLED)
       {
         cell_color = FILLED_COLOR;
       }
 
-      if (game.board.at(x).at(y) == Cell_state::ACTIVE)
+      if (cells[x][y] == Cell_state::ACTIVE)
       {
-        int active_piece = static_cast<int>(game.active_tetromino.current_type);
+        int active_piece = static_cast<int>(board.getBoardTetromino().getCurrentPieceType());
 
         if (active_piece < 4)
           cell_color = SKYBLUE;
@@ -58,39 +62,39 @@ void draw_board(const Game &game)
   }
 }
 
-char piece_type_to_char(Piece_type piece)
+char pieceTypeToChar(PieceType piece)
 {
   switch (piece)
   {
-  case Piece_type::I_PIECE_0:
+  case PieceType::I_PIECE_0:
     return 'I';
     break;
 
-  case Piece_type::J_PIECE_0:
+  case PieceType::J_PIECE_0:
 
     return 'J';
     break;
 
-  case Piece_type::L_PIECE_0:
+  case PieceType::L_PIECE_0:
     return 'L';
     break;
 
-  case Piece_type::O_PIECE_0:
+  case PieceType::O_PIECE_0:
 
     return 'O';
     break;
 
-  case Piece_type::S_PIECE_0:
+  case PieceType::S_PIECE_0:
 
     return 'S';
     break;
 
-  case Piece_type::T_PIECE_0:
+  case PieceType::T_PIECE_0:
 
     return 'T';
     break;
 
-  case Piece_type::Z_PIECE_0:
+  case PieceType::Z_PIECE_0:
 
     return 'Z';
     break;
@@ -106,107 +110,108 @@ int main()
 
   Game main_game(1);
 
+  Board &board = main_game.getBoard();
+
   SetTargetFPS(60);
+
+  SetTraceLogLevel(LOG_WARNING);
 
   InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "GEORGE TETRIS");
 
-  main_game.set_piece(Piece_type::T_PIECE_0);
-  main_game.generate_piece_queue();
-  main_game.update_piece_queue();
+  // main_game.set_piece(PieceType::T_PIECE_0);
+  // main_game.generate_piece_queue();
+  // main_game.update_piece_queue();
 
   while (!WindowShouldClose())
   {
     // main_game.get_piece_queue();
 
-    main_game.increase_gravity_counter();
+    // main_game.increase_gravity_counter();
 
-    if (main_game.gravity_counter >= 20)
-    {
-      std::cout << main_game.gravity_counter << std::endl;
-      main_game.tick_gravity();
-      main_game.gravity_counter = 0;
-    }
-
-#pragma region Inputs
+    // if (main_game.gravity_counter >= 20)
+    // {
+    //   std::cout << main_game.gravity_counter << std::endl;
+    //   main_game.tick_gravity();
+    //   main_game.gravity_counter = 0;
+    // }
 
     if (IsKeyPressed(KEY_LEFT))
     {
-      main_game.move_tetromino(Movement_direction::LEFT);
+      board.moveTetromino(MovementDirection::LEFT);
     }
     else if (IsKeyPressed(KEY_RIGHT))
     {
-      main_game.move_tetromino(Movement_direction::RIGHT);
+      board.moveTetromino(MovementDirection::RIGHT);
     }
     else if (IsKeyPressed(KEY_DOWN))
     {
-      main_game.move_tetromino(Movement_direction::DOWN);
+      board.moveTetromino(MovementDirection::DOWN);
     }
 
     if (IsKeyPressed(KEY_Z))
     {
-      main_game.rotate_tetromino(Rotation::COUNTER_CLOCKWISE);
+      board.rotateTetromino(Rotation::COUNTER_CLOCKWISE);
     }
     else if (IsKeyPressed(KEY_X))
     {
-      main_game.rotate_tetromino(Rotation::CLOCKWISE);
+      board.rotateTetromino(Rotation::CLOCKWISE);
     }
     else if (IsKeyPressed(KEY_A))
     {
-      main_game.rotate_tetromino(Rotation::ONE_EIGHTY);
+      board.rotateTetromino(Rotation::ONE_EIGHTY);
     }
 
     if (IsKeyPressed(KEY_C) && main_game.hold_used == false)
     {
-      main_game.hold_current_piece();
+      main_game.holdCurrentPiece();
       main_game.hold_used = true;
     }
 
     if (IsKeyPressed(KEY_SPACE))
     {
-      main_game.hard_drop();
+      main_game.hardDrop();
     }
 
-#pragma endregion
+    // int cleared_lines = main_game.clear_lines();
 
-    int cleared_lines = main_game.clear_lines();
-
-    if (cleared_lines > 0)
-    {
-      switch (cleared_lines)
-      {
-      case 1:
-        main_game.score += 100;
-        break;
-      case 2:
-        main_game.score += 300;
-        break;
-      case 3:
-        main_game.score += 500;
-        break;
-      case 4:
-        main_game.score += 1000;
-        break;
-      default:
-        break;
-      }
-    }
+    // if (cleared_lines > 0)
+    // {
+    //   switch (cleared_lines)
+    //   {
+    //   case 1:
+    //     main_game.score += 100;
+    //     break;
+    //   case 2:
+    //     main_game.score += 300;
+    //     break;
+    //   case 3:
+    //     main_game.score += 500;
+    //     break;
+    //   case 4:
+    //     main_game.score += 1000;
+    //     break;
+    //   default:
+    //     break;
+    //   }
+    // }
 
     BeginDrawing();
 
     ClearBackground(BACKGROUND_COLOR);
 
-    draw_board(main_game);
+    drawBoard(main_game);
 
-    DrawText(TextFormat("QUEUE = %d", main_game.queue_index), SCREEN_WIDTH / 2 + 400, SCREEN_HEIGHT / 2 - 400, 30, RED);
-    DrawText(TextFormat("CURRENT = %c", piece_type_to_char(main_game.active_tetromino.current_type)), SCREEN_WIDTH / 2 + 400, SCREEN_HEIGHT / 2 - 360, 30, RED);
-    DrawText(TextFormat("QUEUE = %c %c %c %c %c", piece_type_to_char(main_game.known_piece_queue.at(0)),
-                        piece_type_to_char(main_game.known_piece_queue.at(1)),
-                        piece_type_to_char(main_game.known_piece_queue.at(2)),
-                        piece_type_to_char(main_game.known_piece_queue.at(3)),
-                        piece_type_to_char(main_game.known_piece_queue.at(4))),
-             SCREEN_WIDTH / 2 + 400, SCREEN_HEIGHT / 2 - 320, 30, RED);
+    // DrawText(TextFormat("QUEUE = %d", main_game.queue_index), SCREEN_WIDTH / 2 + 400, SCREEN_HEIGHT / 2 - 400, 30, RED);
+    DrawText(TextFormat("CURRENT = %c", pieceTypeToChar(static_cast<PieceType>(main_game.getBoard().getBoardTetromino().getCurrentPieceType()))), SCREEN_WIDTH / 2 + 400, SCREEN_HEIGHT / 2 - 360, 30, RED);
+    DrawText(TextFormat("QUEUE = %c %c %c %c %c", 
+      pieceTypeToChar(static_cast<PieceType>(main_game.getPieceQueue().getPieceQueue().at(0))),
+      pieceTypeToChar(static_cast<PieceType>(main_game.getPieceQueue().getPieceQueue().at(1))),
+      pieceTypeToChar(static_cast<PieceType>(main_game.getPieceQueue().getPieceQueue().at(2))),
+      pieceTypeToChar(static_cast<PieceType>(main_game.getPieceQueue().getPieceQueue().at(3))),
+      pieceTypeToChar(static_cast<PieceType>(main_game.getPieceQueue().getPieceQueue().at(4)))),
+      SCREEN_WIDTH / 2 + 400, SCREEN_HEIGHT / 2 - 320, 30, RED);
 
-    DrawText(TextFormat("HOLD = %c", piece_type_to_char(static_cast<Piece_type>(main_game.hold_piece_index))), SCREEN_WIDTH / 2 - 400, SCREEN_HEIGHT / 2 - 400, 30, RED);
+    DrawText(TextFormat("HOLD = %c", pieceTypeToChar(static_cast<PieceType>(main_game.hold_piece_index))), SCREEN_WIDTH / 2 - 400, SCREEN_HEIGHT / 2 - 400, 30, RED);
 
     DrawText(TextFormat("SCORE = %d", main_game.score), SCREEN_WIDTH / 2 - 400, SCREEN_HEIGHT / 2 - 375, 30, WHITE);
 

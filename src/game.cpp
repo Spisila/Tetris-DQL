@@ -1,11 +1,9 @@
 
-#include <iostream>
-#include <algorithm>
-#include <random>
-
 #include <game.hpp>
 
 #include <raylib.h>
+
+#include <iostream>
 
 /* TODO:
 Implement wall kicks
@@ -16,430 +14,241 @@ Game::Game(int _id)
 
     id = _id;
 
-    gen.seed(std::random_device{}());
-
-    // initialize the board as empty
-    for (int x = 0; x < board.size(); x++)
-    {
-        for (int y = 0; y < board.at(x).size(); y++)
-        {
-            board.at(x).at(y) = Cell_state::EMPTY;
-        }
-    }
-
-    generate_piece_queue();
-    update_piece_queue();
-    set_piece(piece_queue.at(0));
+    piece_queue.generatePieceQueue();
+    piece_queue.updatePieceQueue();
+    game_board.setPiece(static_cast<PieceType>(piece_queue.getPieceQueue().at(0)));
 }
 
 Game::~Game()
 {
 }
 
-void Game::step()
-{
+// void Game::step()
+// {
 
-    switch (next_action)
-    {
-    case Actions::MOVE_RIGHT:
-        move_tetromino(Movement_direction::RIGHT);
-        break;
-    case Actions::MOVE_LEFT:
-        move_tetromino(Movement_direction::LEFT);
-        break;
-    case Actions::SOFT_DROP:
-        move_tetromino(Movement_direction::DOWN);
-        break;
-    case Actions::ROTATE_CLOCKWISE:
-        rotate_tetromino(Rotation::CLOCKWISE);
-        break;
-    case Actions::ROTATE_COUNTER_CLOCKWISE:
-        rotate_tetromino(Rotation::COUNTER_CLOCKWISE);
-        break;
-    case Actions::HARD_DROP:
-        hard_drop();
-        break;
-    case Actions::HOLD:
-        if (hold_used == false)
-        {
-            hold_used = true;
-            hold_current_piece();
-        }
-        break;
-    default:
-        break;
-    }
-}
+//     switch (next_action)
+//     {
+//     case Actions::MOVE_RIGHT:
+//         move_tetromino(Movement_direction::RIGHT);
+//         break;
+//     case Actions::MOVE_LEFT:
+//         move_tetromino(Movement_direction::LEFT);
+//         break;
+//     case Actions::SOFT_DROP:
+//         move_tetromino(Movement_direction::DOWN);
+//         break;
+//     case Actions::ROTATE_CLOCKWISE:
+//         rotate_tetromino(Rotation::CLOCKWISE);
+//         break;
+//     case Actions::ROTATE_COUNTER_CLOCKWISE:
+//         rotate_tetromino(Rotation::COUNTER_CLOCKWISE);
+//         break;
+//     case Actions::HARD_DROP:
+//         hard_drop();
+//         break;
+//     case Actions::HOLD:
+//         if (hold_used == false)
+//         {
+//             hold_used = true;
+//             hold_current_piece();
+//         }
+//         break;
+//     default:
+//         break;
+//     }
+// }
 
-void Game::reset()
-{
-    lost = false;
+// void Game::reset()
+// {
+//     lost = false;
 
-    for (int x = 0; x < board.size(); x++)
-    {
-        for (int y = 0; y < board.at(x).size(); y++)
-        {
-            board.at(x).at(y) = Cell_state::EMPTY;
-        }
-    }
+//     for (int x = 0; x < board.size(); x++)
+//     {
+//         for (int y = 0; y < board.at(x).size(); y++)
+//         {
+//             board.at(x).at(y) = Cell_state::EMPTY;
+//         }
+//     }
 
-    generate_piece_queue();
-    update_piece_queue();
+//     generate_piece_queue();
+//     update_piece_queue();
 
-    set_piece(Piece_type::J_PIECE_0);
-}
+//     set_piece(Piece_type::J_PIECE_0);
+// }
 
-StepData Game::calculate_reward()
-{
+// StepData Game::calculate_reward()
+// {
 
-    if (piece_set == true)
-    {
-        piece_set = false;
+//     if (piece_set == true)
+//     {
+//         piece_set = false;
 
-        int lines = clear_lines();
-        int total_height = get_aggregate_height();
-        int total_holes = get_amount_of_holes();
-        int rugosity = get_rugosity();
+//         int lines = clear_lines();
+//         int total_height = get_aggregate_height();
+//         int total_holes = get_amount_of_holes();
+//         int rugosity = get_rugosity();
 
-        std::array<Position, 4> spawn_positions = {Position(5, 1), Position(0, 0), Position(0, 0), Position(0, 0)};
+//         std::array<Position, 4> spawn_positions = {Position(5, 1), Position(0, 0), Position(0, 0), Position(0, 0)};
 
-        if (check_collision(spawn_positions))
-        {
-            StepData loss_step = {LOSS_SCORE_WEIGHT, true, true};
-            return loss_step;
-        }
+//         if (check_collision(spawn_positions))
+//         {
+//             StepData loss_step = {LOSS_SCORE_WEIGHT, true, true};
+//             return loss_step;
+//         }
 
-        float reward = (lines * LINES_CLEARED_WEIGHT) - (total_height * TOTAL_HEIGHT_WEIGHT) - (total_holes * HOLES_WEIGHT) - (rugosity * RUGOSITY_WEIGHT);
+//         float reward = (lines * LINES_CLEARED_WEIGHT) - (total_height * TOTAL_HEIGHT_WEIGHT) - (total_holes * HOLES_WEIGHT) - (rugosity * RUGOSITY_WEIGHT);
 
-        StepData piece_set_step = {reward, true, false};
+//         StepData piece_set_step = {reward, true, false};
 
-        return piece_set_step;
-    }
+//         return piece_set_step;
+//     }
 
-    gravity_counter += 1;
+//     gravity_counter += 1;
 
-    if (gravity_counter >= 10)
-    {
-        tick_gravity();
-        gravity_counter = 0;
-    }
+//     if (gravity_counter >= 10)
+//     {
+//         tick_gravity();
+//         gravity_counter = 0;
+//     }
 
-    StepData gravity_step = {-0.005f, false, false};
+//     StepData gravity_step = {-0.005f, false, false};
 
-    return gravity_step;
-}
+//     return gravity_step;
+// }
 
 // ----------
 
-void Game::init_graphics()
-{
-    SetTargetFPS(60);
+// void Game::init_graphics()
+// {
+//     SetTargetFPS(60);
 
-    SetTraceLogLevel(LOG_WARNING);
+//     SetTraceLogLevel(LOG_WARNING);
 
-    InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Test");
-}
+//     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Test");
+// }
 
-void Game::render(std::string &generation_counter)
-{
-    PollInputEvents();
+// void Game::render(std::string &generation_counter)
+// {
+//     PollInputEvents();
 
-    if (!WindowShouldClose())
-    {
-        BeginDrawing();
-        ClearBackground(BACKGROUND_COLOR);
+//     if (!WindowShouldClose())
+//     {
+//         BeginDrawing();
+//         ClearBackground(BACKGROUND_COLOR);
 
-        DrawText(TextFormat("Generation = %s", generation_counter), SCREEN_WIDTH / 2 + 400, SCREEN_HEIGHT / 2 - 400, 30, RED);
+//         DrawText(TextFormat("Generation = %s", generation_counter), SCREEN_WIDTH / 2 + 400, SCREEN_HEIGHT / 2 - 400, 30, RED);
 
-        for (int x = 0; x < board.size(); x++)
-        {
-            for (int y = 0; y < board.at(x).size(); y++)
-            {
-                Color cell_color;
+//         for (int x = 0; x < board.size(); x++)
+//         {
+//             for (int y = 0; y < board.at(x).size(); y++)
+//             {
+//                 Color cell_color;
 
-                if (y < 4)
-                {
-                    cell_color = SPAWN_COLOR;
-                }
-                else
-                {
-                    cell_color = BOARD_COLOR;
-                }
+//                 if (y < 4)
+//                 {
+//                     cell_color = SPAWN_COLOR;
+//                 }
+//                 else
+//                 {
+//                     cell_color = BOARD_COLOR;
+//                 }
 
-                if (board.at(x).at(y) == Cell_state::FILLED)
-                {
-                    cell_color = FILLED_COLOR;
-                }
+//                 if (board.at(x).at(y) == Cell_state::FILLED)
+//                 {
+//                     cell_color = FILLED_COLOR;
+//                 }
 
-                if (board.at(x).at(y) == Cell_state::ACTIVE)
-                {
-                    int active_piece = static_cast<int>(active_tetromino.current_type);
+//                 if (board.at(x).at(y) == Cell_state::ACTIVE)
+//                 {
+//                     int active_piece = static_cast<int>(active_tetromino.current_type);
 
-                    if (active_piece < 4)
-                        cell_color = SKYBLUE;
-                    else if (active_piece >= 4 && active_piece < 8)
-                        cell_color = DARKBLUE;
-                    else if (active_piece >= 8 && active_piece < 12)
-                        cell_color = ORANGE;
-                    else if (active_piece >= 12 && active_piece < 16)
-                        cell_color = YELLOW;
-                    else if (active_piece >= 16 && active_piece < 20)
-                        cell_color = GREEN;
-                    else if (active_piece >= 20 && active_piece < 24)
-                        cell_color = PURPLE;
-                    else if (active_piece >= 24 && active_piece < 28)
-                        cell_color = RED;
-                }
+//                     if (active_piece < 4)
+//                         cell_color = SKYBLUE;
+//                     else if (active_piece >= 4 && active_piece < 8)
+//                         cell_color = DARKBLUE;
+//                     else if (active_piece >= 8 && active_piece < 12)
+//                         cell_color = ORANGE;
+//                     else if (active_piece >= 12 && active_piece < 16)
+//                         cell_color = YELLOW;
+//                     else if (active_piece >= 16 && active_piece < 20)
+//                         cell_color = GREEN;
+//                     else if (active_piece >= 20 && active_piece < 24)
+//                         cell_color = PURPLE;
+//                     else if (active_piece >= 24 && active_piece < 28)
+//                         cell_color = RED;
+//                 }
 
-                DrawRectangle(OFFSET_X + x * CELL_SIZE, OFFSET_Y + y * CELL_SIZE, CELL_SIZE - 1, CELL_SIZE - 1, cell_color);
-            }
-        }
+//                 DrawRectangle(OFFSET_X + x * CELL_SIZE, OFFSET_Y + y * CELL_SIZE, CELL_SIZE - 1, CELL_SIZE - 1, cell_color);
+//             }
+//         }
 
-        EndDrawing();
-    }
-}
+//         EndDrawing();
+//     }
+// }
 
-void Game::close_graphics()
-{
-    CloseWindow();
-}
+// void Game::close_graphics()
+// {
+//     CloseWindow();
+// }
 
 #pragma region GETTERS
 
-std::array<int, BOARD_SIZE_X> Game::get_board_height()
-{
-
-    std::array<int, BOARD_SIZE_X> heights{};
-
-    for (int x = 0; x < board.size(); x++)
-    {
-        for (int y = 0; y < board.at(x).size(); y++)
-        {
-            if (board.at(x).at(y) == Cell_state::FILLED)
-            {
-                heights.at(x)++;
-            }
-        }
-    }
-
-    return heights;
-}
-
-int Game::get_aggregate_height()
-{
-
-    auto columns_heights = get_board_height();
-
-    int total_height = 0;
-
-    for (int i = 0; i < columns_heights.size(); i++)
-    {
-        total_height += columns_heights.at(i);
-    }
-
-    return total_height;
-}
-
-int Game::get_amount_of_holes()
-{
-
-    int holes = 0;
-
-    for (int x = 0; x < board.size(); x++)
-    {
-        for (int y = 0; y < board.at(x).size(); y++)
-        {
-
-            // If is the first line there can be no empty cell above it
-            if (y == 0)
-            {
-                continue;
-            }
-
-            auto cell_i = board.at(x).at(y);
-            auto cell_above = board.at(x).at(y - 1);
-
-            if (cell_i == Cell_state::EMPTY)
-            {
-
-                if (cell_above == Cell_state::FILLED)
-                {
-                    holes++;
-                }
-            }
-        }
-    }
-
-    return holes;
-}
-
-int Game::get_id()
+int Game::getId()
 {
     return id;
 }
 
-int Game::get_rugosity()
-{
-
-    auto column_heights = get_board_height();
-
-    int rugosity = 0;
-
-    for (int i = 0; i < column_heights.size() - 1; i++)
-    {
-
-        int difference = 0;
-
-        difference = column_heights.at(i) - column_heights.at(i + 1);
-
-        rugosity += std::abs(difference);
-    }
-
-    return rugosity;
-}
-
-int Game::get_current_peice_type()
-{
-
-    int piece_with_rotation = static_cast<int>(active_tetromino.current_type);
-
-    switch (piece_with_rotation)
-    {
-    case 0:
-        return 0;
-    case 4:
-        return 1;
-    case 8:
-        return 2;
-    case 12:
-        return 3;
-    case 16:
-        return 4;
-    case 20:
-        return 5;
-    case 24:
-        return 6;
-    default:
-        return -1;
-    }
-}
-
-Position Game::get_pivot_position()
-{
-    return active_tetromino.pieces_positions[0];
-}
-
-std::array<Position, 4> Game::get_active_tetromino_pieces_positions()
-{
-    return active_tetromino.pieces_positions;
-}
-
-std::array<int, piece_queue_size> Game::get_piece_queue()
-{
-    std::array<int, piece_queue_size> int_queue{};
-
-    for (int i = 0; i < piece_queue_size; i++)
-    {
-        int_queue.at(i) = static_cast<int>(known_piece_queue.at(i));
-    }
-
-    return int_queue;
-}
-
-int Game::get_score()
+int Game::getScore()
 {
     return score;
 }
 
-std::vector<int> Game::get_game_state()
+std::vector<int> Game::getGameState()
 {
 
-    int agg_height = get_aggregate_height();
-    int holes = get_amount_of_holes();
-    int rugosity = get_rugosity();
-    int current_piece_type = get_current_peice_type();
+    std::vector<int> state;
 
-    std::vector<int> data_basic = {agg_height, holes, rugosity, current_piece_type};
+    std::vector<int> board_state = game_board.getBoardState();
 
-    std::array<int, piece_queue_size> piece_queue = get_piece_queue();
-
-    for (int i = 0; i < piece_queue.size(); i++)
+    for (int i : board_state)
     {
-
-        data_basic.push_back(format_piece(piece_queue[i]));
+        state.push_back(i);
     }
 
-    return data_basic;
+    const Tetromino &current_tetromino = game_board.getBoardTetromino();
+    const int current_piece_type = current_tetromino.getCurrentPieceType();
+
+    state.push_back(current_piece_type);
+
+    const PieceQueue &current_queue = getPieceQueue();
+    const auto &piece_queue = current_queue.getPieceQueue();
+
+    for (int piece : piece_queue)
+    {
+        state.push_back(formatPiece(piece_queue[piece]));
+    }
+
+    return state;
 }
 
-int Game::format_piece(int piece)
+const PieceQueue &Game::getPieceQueue() const
 {
-    switch (piece)
-    {
-    case 0:
-        return 0;
-    case 4:
-        return 1;
-    case 8:
-        return 2;
-    case 12:
-        return 3;
-    case 16:
-        return 4;
-    case 20:
-        return 5;
-    case 24:
-        return 6;
-    default:
-        return -1;
-    }
+    return piece_queue;
+}
+
+Board &Game::getBoard()
+{
+    return game_board;
+}
+
+const Board &Game::getBoard() const
+{
+    return game_board;
 }
 
 #pragma endregion
 
 #pragma region SETTERS
-
-void Game::set_tetromino_cell_state(Cell_state state)
-{
-    for (int i = 0; i < active_tetromino.pieces_positions.size(); i++)
-    {
-        board[active_tetromino.pieces_positions.at(i).x][active_tetromino.pieces_positions.at(i).y] = state;
-    }
-}
-
-void Game::set_piece(Piece_type new_piece)
-{
-
-    active_tetromino.pieces_positions.at(0) = Position(5, 1);
-
-    std::array<Position, 3> other_pieces_positions = tetromino_type_rotation_to_piece_positions.at(new_piece);
-
-    std::array<Position, 4> spawn_positions = {Position(5, 1), Position(0, 0), Position(0, 0), Position(0, 0)};
-
-    for (int j = 0; j < other_pieces_positions.size(); j++)
-    {
-        spawn_positions.at(j + 1).x = spawn_positions.at(0).x + other_pieces_positions.at(j).x;
-        spawn_positions.at(j + 1).y = spawn_positions.at(0).y + other_pieces_positions.at(j).y;
-    }
-
-    if (check_collision(spawn_positions))
-    {
-        // std::cout << "GAME OVER!" << std::endl;
-        // exit(0);
-        lost = true;
-        return;
-    }
-
-    for (int j = 0; j < other_pieces_positions.size(); j++)
-    {
-        active_tetromino.pieces_positions.at(j + 1).x = active_tetromino.pieces_positions.at(0).x + other_pieces_positions.at(j).x;
-        active_tetromino.pieces_positions.at(j + 1).y = active_tetromino.pieces_positions.at(0).y + other_pieces_positions.at(j).y;
-    }
-
-    active_tetromino.current_type = new_piece;
-
-    set_tetromino_cell_state(Cell_state::ACTIVE);
-}
 
 void Game::reset_score()
 {
@@ -447,6 +256,27 @@ void Game::reset_score()
 }
 
 #pragma endregion
+
+void Game::hardDrop()
+{
+
+    Tetromino &t = game_board.getBoardTetromino();
+
+    while (true)
+    {
+        game_board.setTetrominoCellsStates(Cell_state::EMPTY, t.getAllPositions());
+        auto projected_position = t.projectMovement(MovementDirection::DOWN);
+
+        if (game_board.checkShouldSetPiece(projected_position))
+        {
+            pieceWasSet();
+            break;
+        }
+
+        t.setPositions(projected_position);
+        game_board.setTetrominoCellsStates(Cell_state::ACTIVE, projected_position);
+    }
+}
 
 void Game::increase_score(int lines)
 {
@@ -473,462 +303,33 @@ void Game::increase_score(int lines)
     }
 }
 
-std::array<Position, 4> Game::project_movement(Movement_direction dir)
-{
-
-    std::array<Position, 4> projected_position{Position(0, 0), Position(0, 0), Position(0, 0), Position(0, 0)};
-
-    // 0 is the pivot of the projected tetromino
-    projected_position.at(0) = active_tetromino.pieces_positions.at(0);
-
-    switch (dir)
-    {
-    case Movement_direction::UP:
-        projected_position.at(0).y--;
-        break;
-    case Movement_direction::DOWN:
-        projected_position.at(0).y++;
-        break;
-    case Movement_direction::LEFT:
-        projected_position.at(0).x--;
-        break;
-    case Movement_direction::RIGHT:
-        projected_position.at(0).x++;
-        break;
-    case Movement_direction::TOP_RIGHT:
-        projected_position.at(0).x++;
-        projected_position.at(0).y--;
-        break;
-    case Movement_direction::TOP_LEFT:
-        projected_position.at(0).x--;
-        projected_position.at(0).y--;
-        break;
-    case Movement_direction::BOTTOM_RIGHT:
-        projected_position.at(0).x++;
-        projected_position.at(0).y++;
-        break;
-    case Movement_direction::BOTTOM_LEFT:
-        projected_position.at(0).x--;
-        projected_position.at(0).y++;
-        break;
-
-    default:
-        break;
-    }
-
-    std::array<Position, 3> pos = tetromino_type_rotation_to_piece_positions.at(active_tetromino.current_type);
-
-    for (int j = 0; j < pos.size(); j++)
-    {
-        projected_position.at(j + 1).x = projected_position.at(0).x + pos.at(j).x;
-        projected_position.at(j + 1).y = projected_position.at(0).y + pos.at(j).y;
-    }
-
-    return projected_position;
-}
-
-void Game::move_tetromino(Movement_direction dir)
-{
-
-    std::array<Position, 4> projected_position = project_movement(dir);
-
-    if (check_out_of_lateral_bounds(projected_position) || check_collision(projected_position))
-    {
-        return;
-    }
-
-    set_tetromino_cell_state(Cell_state::EMPTY);
-
-    for (int i = 0; i < active_tetromino.pieces_positions.size(); i++)
-    {
-        active_tetromino.pieces_positions.at(i) = projected_position.at(i);
-    }
-    set_tetromino_cell_state(Cell_state::ACTIVE);
-}
-
-// index + (current +/- 1) mod(4)
-Piece_type Game::change_tetrominoe_rotation(Rotation rot)
-{
-
-    int current_index = static_cast<int>(active_tetromino.current_type);
-    int general_index;
-
-    if (current_index < 4)
-        general_index = 0;
-    else if (current_index >= 4 && current_index < 8)
-        general_index = 4;
-    else if (current_index >= 8 && current_index < 12)
-        general_index = 8;
-    else if (current_index >= 12 && current_index < 16)
-        general_index = 12;
-    else if (current_index >= 16 && current_index < 20)
-        general_index = 16;
-    else if (current_index >= 20 && current_index < 24)
-        general_index = 20;
-    else if (current_index >= 24 && current_index < 28)
-        general_index = 24;
-
-    int step;
-
-    switch (rot)
-    {
-    case Rotation::CLOCKWISE:
-        step = 1;
-        break;
-    case Rotation::COUNTER_CLOCKWISE:
-        step = -1;
-        break;
-    case Rotation::ONE_EIGHTY:
-        step = 2;
-        break;
-    default:
-        break;
-    }
-
-    int new_rotated_piece = general_index + ((current_index + step) % 4);
-
-    if (new_rotated_piece < 0)
-        new_rotated_piece += 4;
-
-    return static_cast<Piece_type>(new_rotated_piece);
-}
-
-std::array<Position, 4> Game::project_rotation(Rotation rot)
-{
-
-    std::array<Position, 4> projected_rotation{Position(0, 0), Position(0, 0), Position(0, 0), Position(0, 0)};
-
-    Piece_type new_rotation = change_tetrominoe_rotation(rot);
-
-    projected_rotation.at(0) = active_tetromino.pieces_positions.at(0);
-
-    std::array<Position, 3> pos = tetromino_type_rotation_to_piece_positions.at(new_rotation);
-
-    for (int i = 0; i < pos.size(); i++)
-    {
-        projected_rotation.at(i + 1).x = projected_rotation.at(0).x + pos.at(i).x;
-        projected_rotation.at(i + 1).y = projected_rotation.at(0).y + pos.at(i).y;
-    }
-
-    return projected_rotation;
-}
-
-void Game::rotate_tetromino(Rotation rot)
-{
-
-    std::array<Position, 4> projected_rotation = project_rotation(rot);
-
-    if (check_out_of_lateral_bounds(projected_rotation) || check_collision(projected_rotation))
-    {
-        return;
-    }
-
-    set_tetromino_cell_state(Cell_state::EMPTY);
-
-    for (int i = 0; i < active_tetromino.pieces_positions.size(); i++)
-    {
-        active_tetromino.pieces_positions.at(i) = projected_rotation.at(i);
-    }
-
-    active_tetromino.current_type = change_tetrominoe_rotation(rot);
-
-    set_tetromino_cell_state(Cell_state::ACTIVE);
-}
-
-bool Game::check_collision(std::array<Position, 4> projected_positions)
-{
-
-    for (int i = 0; i < 4; i++)
-    {
-        if (board[projected_positions.at(i).x][projected_positions.at(i).y] == Cell_state::FILLED)
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-bool Game::check_out_of_lateral_bounds(std::array<Position, 4> projected_positions)
-{
-
-    for (int i = 0; i < 4; i++)
-    {
-        if (projected_positions.at(i).x < 0 || projected_positions.at(i).x >= BOARD_SIZE_X || projected_positions.at(i).y < 0 || projected_positions.at(i).y >= BOARD_SIZE_Y)
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-bool Game::check_touched_floor(std::array<Position, 4> projected_positions)
-{
-
-    for (int i = 0; i < 4; i++)
-    {
-        if (projected_positions.at(i).y >= BOARD_SIZE_Y)
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-bool Game::check_should_set_piece(std::array<Position, 4> projected_position)
-{
-    bool test_floor = check_touched_floor(projected_position);
-    bool test_collision = check_collision(projected_position);
-
-    return test_floor || test_collision;
-}
-
-void Game::piece_was_set()
+int Game::pieceWasSet()
 {
     piece_set = true;
-    set_tetromino_cell_state(Cell_state::FILLED);
-    set_piece(piece_queue.at(queue_index));
-    update_piece_queue();
     hold_used = false;
-    increase_score(clear_lines());
+    game_board.setTetrominoCellsStates(Cell_state::FILLED, game_board.getBoardTetromino().getAllPositions());
+    game_board.setPiece(static_cast<PieceType>(piece_queue.getPieceQueue().at(0)));
+    piece_queue.updatePieceQueue();
+    return game_board.clearLines();
 }
 
-void Game::increase_gravity_counter()
+void Game::holdCurrentPiece()
 {
-    gravity_counter++;
-}
+    game_board.setTetrominoCellsStates(Cell_state::EMPTY, game_board.getBoardTetromino().getAllPositions());
 
-void Game::tick_gravity()
-{
-    set_tetromino_cell_state(Cell_state::EMPTY);
+    Tetromino &t = game_board.getBoardTetromino();
 
-    std::array<Position, 4> projected_position = project_movement(Movement_direction::DOWN);
-
-    if (check_should_set_piece(projected_position))
-    {
-        piece_was_set();
-        return;
-    }
-
-    for (int i = 0; i < active_tetromino.pieces_positions.size(); i++)
-    {
-        active_tetromino.pieces_positions.at(i) = projected_position.at(i);
-    }
-
-    set_tetromino_cell_state(Cell_state::ACTIVE);
-}
-
-void Game::hard_drop()
-{
-    while (true)
-    {
-        set_tetromino_cell_state(Cell_state::EMPTY);
-
-        std::array<Position, 4> projected_position = project_movement(Movement_direction::DOWN);
-
-        if (check_should_set_piece(projected_position))
-        {
-            piece_was_set();
-            break;
-        }
-
-        for (int i = 0; i < active_tetromino.pieces_positions.size(); i++)
-        {
-            active_tetromino.pieces_positions.at(i) = projected_position.at(i);
-        }
-
-        set_tetromino_cell_state(Cell_state::ACTIVE);
-    }
-}
-
-int Game::clear_lines()
-{
-    int cleared_lines = 0;
-
-    // Loop through all lines and count filled cells
-    for (int line = 0; line < BOARD_SIZE_Y; line++)
-    {
-        int filled_count = 0;
-
-        // Checa se a linha esta cheia
-        for (int x = 0; x < BOARD_SIZE_X; x++)
-        {
-
-            if (board[x][line] == Cell_state::FILLED)
-            {
-                filled_count++;
-            }
-        }
-
-        // If line is full, clear it and move everything above down
-
-        if (filled_count == BOARD_SIZE_X)
-        {
-            cleared_lines++;
-            int cleared_line = line;
-
-            for (int line_above = line - 1; line_above > 0; line_above--)
-            {
-                for (int cell = 0; cell < BOARD_SIZE_X; cell++)
-                {
-
-                    if (board[cell][line_above] != Cell_state::ACTIVE)
-                    {
-                        board[cell][cleared_line] = board[cell][line_above];
-                    }
-                }
-                cleared_line = line_above;
-            }
-        }
-    }
-
-    return cleared_lines;
-}
-
-void Game::hold_current_piece()
-{
-    set_tetromino_cell_state(Cell_state::EMPTY);
-
-    int current_index = static_cast<int>(active_tetromino.current_type);
-    int general_index;
-
-    if (current_index < 4)
-        general_index = 0;
-    else if (current_index >= 4 && current_index < 8)
-        general_index = 4;
-    else if (current_index >= 8 && current_index < 12)
-        general_index = 8;
-    else if (current_index >= 12 && current_index < 16)
-        general_index = 12;
-    else if (current_index >= 16 && current_index < 20)
-        general_index = 16;
-    else if (current_index >= 20 && current_index < 24)
-        general_index = 20;
-    else if (current_index >= 24 && current_index < 28)
-        general_index = 24;
+    int current_index = static_cast<int>(t.getCurrentPieceType());
 
     if (hold_piece_index == -1)
     {
-        hold_piece_index = static_cast<int>(general_index);
-        set_piece(static_cast<Piece_type>(rand() % 7 * 4)); // Spawn new random piece
+        hold_piece_index = static_cast<int>(current_index);
+        game_board.setPiece(static_cast<PieceType>(getPieceQueue().getPieceQueue().at(0))); // Spawn new random piece
     }
     else
     {
         int temp = hold_piece_index;
-        hold_piece_index = static_cast<int>(general_index);
-        set_piece(static_cast<Piece_type>(temp));
+        hold_piece_index = static_cast<int>(current_index);
+        game_board.setPiece(static_cast<PieceType>(temp));
     }
-}
-
-void Game::generate_piece_queue()
-{
-    std::array<Piece_type, 7> bag = {
-        Piece_type::I_PIECE_0,
-        Piece_type::J_PIECE_0,
-        Piece_type::L_PIECE_0,
-        Piece_type::O_PIECE_0,
-        Piece_type::S_PIECE_0,
-        Piece_type::T_PIECE_0,
-        Piece_type::Z_PIECE_0};
-
-    std::shuffle(bag.begin(), bag.end(), gen);
-
-    std::array<Piece_type, 14> new_queue;
-
-    for (int i = 0; i < 7; i++)
-    {
-        new_queue.at(i) = bag.at(i);
-    }
-
-    std::shuffle(bag.begin(), bag.end(), gen);
-
-    for (int i = 7; i < 14; i++)
-    {
-        new_queue.at(i) = bag.at(i - 7);
-    }
-
-    for (int i = 0; i < 14; i++)
-    {
-        piece_queue.at(i) = new_queue.at(i);
-    }
-}
-
-void Game::update_piece_queue()
-{
-    std::array<Piece_type, 7> bag = {
-        Piece_type::I_PIECE_0,
-        Piece_type::J_PIECE_0,
-        Piece_type::L_PIECE_0,
-        Piece_type::O_PIECE_0,
-        Piece_type::S_PIECE_0,
-        Piece_type::T_PIECE_0,
-        Piece_type::Z_PIECE_0};
-
-    if (queue_index + 7 == piece_queue.size() + 1)
-    {
-
-        std::shuffle(bag.begin(), bag.end(), gen);
-
-        for (int i = 0; i < 7; i++)
-        {
-            piece_queue.at(i) = bag.at(i);
-        }
-    }
-
-    if (queue_index >= piece_queue.size() - 1)
-    {
-        std::shuffle(bag.begin(), bag.end(), gen);
-
-        for (int i = 7; i < 14; i++)
-        {
-            piece_queue.at(i) = bag.at(i - 7);
-        }
-
-        queue_index = 0;
-    }
-
-    if (queue_index + 5 < 14)
-    {
-        known_piece_queue[0] = piece_queue[queue_index + 1];
-        known_piece_queue[1] = piece_queue[queue_index + 2];
-        known_piece_queue[2] = piece_queue[queue_index + 3];
-        known_piece_queue[3] = piece_queue[queue_index + 4];
-        known_piece_queue[4] = piece_queue[queue_index + 5];
-    }
-    else if (queue_index + 5 == 14)
-    {
-        known_piece_queue[0] = piece_queue[queue_index + 1];
-        known_piece_queue[1] = piece_queue[queue_index + 2];
-        known_piece_queue[2] = piece_queue[queue_index + 3];
-        known_piece_queue[3] = piece_queue[queue_index + 4];
-        known_piece_queue[4] = piece_queue[0];
-    }
-    else if (queue_index + 5 == 15)
-    {
-        known_piece_queue[0] = piece_queue[queue_index + 1];
-        known_piece_queue[1] = piece_queue[queue_index + 2];
-        known_piece_queue[2] = piece_queue[queue_index + 3];
-        known_piece_queue[3] = piece_queue[0];
-        known_piece_queue[4] = piece_queue[1];
-    }
-    else if (queue_index + 5 == 16)
-    {
-        known_piece_queue[0] = piece_queue[queue_index + 1];
-        known_piece_queue[1] = piece_queue[queue_index + 2];
-        known_piece_queue[2] = piece_queue[0];
-        known_piece_queue[3] = piece_queue[1];
-        known_piece_queue[4] = piece_queue[2];
-    }
-    else if (queue_index + 5 == 17)
-    {
-        known_piece_queue[0] = piece_queue[queue_index + 1];
-        known_piece_queue[1] = piece_queue[0];
-        known_piece_queue[2] = piece_queue[1];
-        known_piece_queue[3] = piece_queue[2];
-        known_piece_queue[4] = piece_queue[3];
-    }
-
-    queue_index++;
 }

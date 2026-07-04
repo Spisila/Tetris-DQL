@@ -27,26 +27,37 @@ include_directories(
     ${PROJECT_SOURCE_DIR}/include
 )
 
-add_executable(GEORGE src/main.cpp
+add_executable(GEORGE 
+src/main.cpp
 src/game.cpp
+include/game.hpp
+src/board.cpp
+include/board.hpp
+src/tetromino.cpp
+include/tetromino.hpp
+src/piecequeue.cpp
+include/piecequeue.hpp
 )
 
 target_link_libraries(GEORGE PRIVATE raylib)
 
 pybind11_add_module(Tetris_AGENT 
-    src/Game.cpp
+    src/game.cpp
     src/MultiGame.cpp 
     src/bindings.cpp
+    src/board.cpp
+    include/tetromino.hpp
+    src/piecequeue.cpp
 )
 
-target_link_libraries(Tetris_AGENT PRIVATE raylib)
+# target_link_libraries(Tetris_AGENT PRIVATE raylib)
 
-set_target_properties(Tetris_AGENT PROPERTIES
-    PREFIX ""
-    SUFFIX ".pyd"
-    LIBRARY_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}"
-    RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}"
-)
+# set_target_properties(Tetris_AGENT PROPERTIES
+#     PREFIX ""
+#     SUFFIX ".pyd"
+#     LIBRARY_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}"
+#     RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}"
+# )
 
 set_target_properties(GEORGE PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/bin"
