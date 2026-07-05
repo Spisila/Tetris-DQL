@@ -8,7 +8,7 @@
 constexpr int BOARD_SIZE_X = 10;
 constexpr int BOARD_SIZE_Y = 24;
 
-enum class Cell_state
+enum class CellState
 {
   EMPTY,
   SPAWN,
@@ -19,7 +19,7 @@ enum class Cell_state
 class Board
 {
 private:
-  std::array<std::array<Cell_state, BOARD_SIZE_Y>, BOARD_SIZE_X> board;
+  std::array<std::array<CellState, BOARD_SIZE_Y>, BOARD_SIZE_X> board;
   Tetromino tetromino{};
 
   std::array<Position, 4> spawn_positions = {
@@ -32,7 +32,8 @@ public:
   Board(/* args */);
   ~Board();
 
-  std::array<std::array<Cell_state, BOARD_SIZE_Y>, BOARD_SIZE_X> getBoardCells() const;
+  std::array<std::array<CellState, BOARD_SIZE_Y>, BOARD_SIZE_X> getBoardCells() const;
+
   std::array<int, BOARD_SIZE_X> getBoardHeight() const;
   int getAggregateHeight() const;
   int getAmountOfHoles() const;
@@ -42,7 +43,7 @@ public:
   Tetromino &getBoardTetromino();
   const Tetromino &getBoardTetromino() const;
 
-  void setTetrominoCellsStates(Cell_state state, std::array<Position, 4> positions);
+  void setTetrominoCellsStates(CellState state, std::array<Position, 4> positions);
 
   void moveTetromino(MovementDirection dir);
   void rotateTetromino(Rotation rot);
@@ -57,4 +58,6 @@ public:
 
   void tickGravity();
   int clearLines();
+
+  void clearBoard();
 };

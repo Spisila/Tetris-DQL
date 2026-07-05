@@ -6,7 +6,6 @@
 #include <array>
 #include <unordered_map>
 
-
 #include <board.hpp>
 #include <piecequeue.hpp>
 
@@ -31,15 +30,9 @@ constexpr float TOTAL_HEIGHT_WEIGHT = 0.5f;
 constexpr float HOLES_WEIGHT = 4.0f;
 constexpr float RUGOSITY_WEIGHT = 0.2f;
 
-
-
 constexpr int ENTIRE_BOARD_SIZE = BOARD_SIZE_X * BOARD_SIZE_Y;
 
 constexpr int piece_queue_size = 5;
-
-
-
-
 
 struct StepData
 {
@@ -50,7 +43,6 @@ struct StepData
 };
 
 // First position is the pivot
-
 
 // If rotating clockwise, from even to odd multiply by -1
 // If rotating counter-clockwise
@@ -76,19 +68,18 @@ private:
   int GRAVITY_TICKS = 30;
 
   Board game_board{};
-  PieceQueue piece_queue{};  
-
+  PieceQueue piece_queue{};
 
 public:
-  
   Actions next_action{Actions::HOLD};
+
+  int lines_cleared = 0;
 
   int hold_piece_index = -1;
   bool hold_used = false;
 
   bool lost = false;
   bool piece_set = false;
-
 
   int gravity_counter = 0;
   int score = 0;
@@ -99,16 +90,11 @@ public:
 
   void reset();
 
-  StepData calculate_reward();
+  StepData calculateReward();
 
   // ---------------
 
-  void init_graphics();
-
-  void render(std::string &generation_counter);
-
-  void close_graphics();
-
+ 
   // ---------------
 
   int getId();
@@ -118,11 +104,9 @@ public:
   std::vector<int> getGameState();
 
   const PieceQueue &getPieceQueue() const;
-  
+
   Board &getBoard();
   const Board &getBoard() const;
-
-  void setPiece(PieceType new_piece);
 
   void increase_score(int lines);
   void reset_score();
@@ -130,13 +114,12 @@ public:
 
   void update_active_tetromino();
 
-  // void tick_gravity();
+  void tick_gravity();
 
   void hardDrop();
 
   // TODO: Implement hold again
   void holdCurrentPiece();
-
 
   int pieceWasSet();
 

@@ -12,8 +12,6 @@ MultiGame::MultiGame(size_t parallel_game_count)
 
   GAME_AMOUNT = parallel_game_count;
 
-  // states_cache.resize(GAME_AMOUNT);
-
   running = true;
 
   unsigned int num_cores = std::thread::hardware_concurrency();
@@ -21,7 +19,7 @@ MultiGame::MultiGame(size_t parallel_game_count)
   for (int i = 0; i < GAME_AMOUNT; i++)
   {
     games.emplace_back(i);
-    states_cache.push_back(games[i].get_game_state());
+    states_cache.push_back(games[i].getGameState());
   }
 
   int segment_size = GAME_AMOUNT / num_cores;
@@ -75,7 +73,6 @@ void MultiGame::threadLoop(size_t thread_segment_index)
     for (auto &game : thread_segment)
     {
       game.step();
-
     }
 
     barrier.arrive_and_wait();
@@ -100,8 +97,8 @@ std::vector<StepData> MultiGame::stepAll(std::vector<Actions> _actions)
 
   for (int i = 0; i < games.size(); i++)
   {
-    rewards.push_back(games[i].calculate_reward());
-    states_cache[games[i].get_id()] = games[i].get_game_state();
+    rewards.push_back(games[i].calculateReward());
+    states_cache[games[i].getId()] = games[i].getGameState();
   }
 
   return rewards;
@@ -127,37 +124,103 @@ void MultiGame::resetThis(int index)
   games[index].reset();
 }
 
-int MultiGame::getSumScore()
+// int MultiGame::getSumScore()
+// {
+//   int sum = 0;
+//   for (Game &game : games)
+//   {
+//     sum += game.get_score();
+//   }
+//   return sum;
+// }
+
+int MultiGame::getLinesCleared()
 {
   int sum = 0;
   for (Game &game : games)
   {
-    sum += game.get_score();
+    sum += game.lines_cleared;
   }
   return sum;
 }
 
 std::vector<std::vector<int>> MultiGame::getStates()
 {
-
-  // py::gil_scoped_release release;
-
-  // std::vector<std::future<std::vector<int>>> futures;
-
-  // for (int i = 0; i < segments.size(); i++)
-  // {
-
-  //   Game &game_i = games[i];
-
-  //   futures.push_back(std::async(std::launch::async, &Game::get_game_state, &game_i));
-  // }
-
-  // std::vector<std::vector<int>> states;
-
-  // for (auto &future : futures)
-  // {
-  //   states.push_back(future.get());
-  // }
-
   return states_cache;
+}
+
+void MultiGame::initGraphics()
+{
+    SetTargetFPS(60);
+
+    SetTraceLogLevel(LOG_WARNING);
+
+    InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Test");
+}
+
+void MultiGame::render(std::string &generation_counter)
+{
+    PollInputEvents();
+
+    if (!WindowShouldClose())
+    {
+        BeginDrawing();
+        ClearBackground(BACKGROUND_COLOR);
+
+        DrawText(TextFormat("Generation = %s", generation_counter), SCREEN_WIDTH / 2 + 400, SCREEN_HEIGHT / 2 - 400, 30, RED);
+
+        auto board_cells = games[0].getBoard().getBoardCells();
+        Tetromino t = games[0].getBoard().getBoardTetromino();
+
+        for (int x = 0; x < board_cells.size(); x++)
+        {
+            for (int y = 0; y < board_cells[x].size(); y++)
+            {
+                Color cell_color;
+
+                if (y < 4)
+                {
+                    cell_color = SPAWN_COLOR;
+                }
+                else
+                {
+                    cell_color = BOARD_COLOR;
+                }
+
+                if (board_cells[x][y] == CellState::FILLED)
+                {
+                    cell_color = FILLED_COLOR;
+                }
+
+                if (board_cells[x][y] == CellState::ACTIVE)
+                {
+                    int active_piece = static_cast<int>(t.getCurrentPieceType());
+
+                    if (active_piece < 4)
+                        cell_color = SKYBLUE;
+                    else if (active_piece >= 4 && active_piece < 8)
+                        cell_color = DARKBLUE;
+                    else if (active_piece >= 8 && active_piece < 12)
+                        cell_color = ORANGE;
+                    else if (active_piece >= 12 && active_piece < 16)
+                        cell_color = YELLOW;
+                    else if (active_piece >= 16 && active_piece < 20)
+                        cell_color = GREEN;
+                    else if (active_piece >= 20 && active_piece < 24)
+                        cell_color = PURPLE;
+                    else if (active_piece >= 24 && active_piece < 28)
+                        cell_color = RED;
+                }
+
+                DrawRectangle(OFFSET_X + x * CELL_SIZE, OFFSET_Y + y * CELL_SIZE, CELL_SIZE - 1, CELL_SIZE - 1, cell_color);
+            }
+        }
+
+        EndDrawing();
+    }
+}
+
+void MultiGame::closeGraphics()
+{
+    CloseWindow();
 }

@@ -10,7 +10,7 @@ Board::Board(/* args */)
     {
         for (int y = 0; y < board.at(x).size(); y++)
         {
-            board.at(x).at(y) = Cell_state::EMPTY;
+            board.at(x).at(y) = CellState::EMPTY;
         }
     }
 }
@@ -19,7 +19,7 @@ Board::~Board()
 {
 }
 
-std::array<std::array<Cell_state, BOARD_SIZE_Y>, BOARD_SIZE_X> Board::getBoardCells() const
+std::array<std::array<CellState, BOARD_SIZE_Y>, BOARD_SIZE_X> Board::getBoardCells() const
 {
     return board;
 }
@@ -33,7 +33,7 @@ std::array<int, BOARD_SIZE_X> Board::getBoardHeight() const
     {
         for (int y = 0; y < board.at(x).size(); y++)
         {
-            if (board.at(x).at(y) == Cell_state::FILLED)
+            if (board.at(x).at(y) == CellState::FILLED)
             {
                 heights.at(x)++;
             }
@@ -77,10 +77,10 @@ int Board::getAmountOfHoles() const
             auto cell_i = board.at(x).at(y);
             auto cell_above = board.at(x).at(y - 1);
 
-            if (cell_i == Cell_state::EMPTY)
+            if (cell_i == CellState::EMPTY)
             {
 
-                if (cell_above == Cell_state::FILLED)
+                if (cell_above == CellState::FILLED)
                 {
                     holes++;
                 }
@@ -134,7 +134,7 @@ Tetromino &Board::getBoardTetromino()
     return tetromino;
 }
 
-void Board::setTetrominoCellsStates(Cell_state state, std::array<Position, 4> positions)
+void Board::setTetrominoCellsStates(CellState state, std::array<Position, 4> positions)
 {
     for (Position pos : positions)
     {
@@ -146,17 +146,16 @@ void Board::moveTetromino(MovementDirection dir)
 {
     std::array<Position, 4> projected_position = tetromino.projectMovement(dir);
 
-    // Todo: Fix collision checking not letting move, piece not updating visuals
     if (checkOutOfLateralBounds(projected_position) || checkCollisions(projected_position))
     {
         return;
     }
 
-    setTetrominoCellsStates(Cell_state::EMPTY, tetromino.getAllPositions());
+    setTetrominoCellsStates(CellState::EMPTY, tetromino.getAllPositions());
 
     tetromino.setPositions(projected_position);
 
-    setTetrominoCellsStates(Cell_state::ACTIVE, projected_position);
+    setTetrominoCellsStates(CellState::ACTIVE, projected_position);
 }
 
 void Board::rotateTetromino(Rotation rot)
@@ -169,23 +168,17 @@ void Board::rotateTetromino(Rotation rot)
         return;
     }
 
-    setTetrominoCellsStates(Cell_state::EMPTY, tetromino.getAllPositions());
+    setTetrominoCellsStates(CellState::EMPTY, tetromino.getAllPositions());
 
     tetromino.setPositions(projected_rotation);
 
     tetromino.setTetrominoType(tetromino.changeTetrominoeRotation(rot));
 
-    setTetrominoCellsStates(Cell_state::ACTIVE, projected_rotation);
+    setTetrominoCellsStates(CellState::ACTIVE, projected_rotation);
 }
 
 void Board::setPiece(PieceType new_piece)
 {
-
-    // std::array<Position, 4> positions = tetromino.getAllPositions();
-    // std::cout << positions[1].x << std::endl;
-    // Position pivot_position = positions[0];
-
-    // std::array<Position, 3> other_pieces_positions = {positions[1], positions[2], positions[3]};
 
     auto new_piece_offsets = rotationToPositionOffsets.at(new_piece);
 
@@ -213,17 +206,11 @@ void Board::setPiece(PieceType new_piece)
         return;
     }
 
-    // for (int j = 0; j < other_pieces_positions.size(); j++)
-    // {
-    //     active_tetromino.pieces_positions.at(j + 1).x = active_tetromino.pieces_positions.at(0).x + other_pieces_positions.at(j).x;
-    //     active_tetromino.pieces_positions.at(j + 1).y = active_tetromino.pieces_positions.at(0).y + other_pieces_positions.at(j).y;
-    // }
-
     tetromino.setPositions(new_piece_positions);
 
     tetromino.setTetrominoType(new_piece);
 
-    setTetrominoCellsStates(Cell_state::ACTIVE, tetromino.getAllPositions());
+    setTetrominoCellsStates(CellState::ACTIVE, tetromino.getAllPositions());
 }
 
 bool Board::checkCollisions(std::array<Position, 4> projected_positions)
@@ -231,7 +218,7 @@ bool Board::checkCollisions(std::array<Position, 4> projected_positions)
 
     for (Position pos : projected_positions)
     {
-        if (board[pos.x][pos.y] == Cell_state::FILLED)
+        if (board[pos.x][pos.y] == CellState::FILLED)
         {
             return true;
         }
@@ -276,26 +263,6 @@ bool Board::checkShouldSetPiece(std::array<Position, 4> projected_position)
     return test_floor || test_collision;
 }
 
-// void Board::tickGravity()
-// {
-//     tetromino.setTetrominoCellState(Cell_state::EMPTY);
-
-//     std::array<Position, 4> projected_position = project_movement(Movement_direction::DOWN);
-
-//     if (check_should_set_piece(projected_position))
-//     {
-//         piece_was_set();
-//         return;
-//     }
-
-//     for (int i = 0; i < active_tetromino.pieces_positions.size(); i++)
-//     {
-//         active_tetromino.pieces_positions.at(i) = projected_position.at(i);
-//     }
-
-//     set_tetromino_cell_state(Cell_state::ACTIVE);
-// }
-
 int Board::clearLines()
 {
     int cleared_lines = 0;
@@ -309,7 +276,7 @@ int Board::clearLines()
         for (int x = 0; x < BOARD_SIZE_X; x++)
         {
 
-            if (board[x][line] == Cell_state::FILLED)
+            if (board[x][line] == CellState::FILLED)
             {
                 filled_count++;
             }
@@ -327,7 +294,7 @@ int Board::clearLines()
                 for (int cell = 0; cell < BOARD_SIZE_X; cell++)
                 {
 
-                    if (board[cell][line_above] != Cell_state::ACTIVE)
+                    if (board[cell][line_above] != CellState::ACTIVE)
                     {
                         board[cell][cleared_line] = board[cell][line_above];
                     }
@@ -338,4 +305,17 @@ int Board::clearLines()
     }
 
     return cleared_lines;
+}
+
+void Board::clearBoard()
+{
+
+    for (int x = 0; x < board.size(); x++)
+    {
+        for (int y = 0; y < board[x].size(); y++)
+        {
+
+            board[x][y] = CellState::EMPTY;
+        }
+    }
 }

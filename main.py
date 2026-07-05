@@ -149,8 +149,13 @@ state = np.array(get_all_current_state(games), dtype=np.float32)
 action_count = 0
 
 generation = 0
-
 generation_log_counter = 0
+
+watch_counter = 0
+graphics_init = False
+
+finished_watch_counter = 0
+finished_watch_max = 20
 
 while True:
 
@@ -160,10 +165,20 @@ while True:
         target_model.load_state_dict(model.state_dict())
         pieces_placed_counter = 0
 
-    if generation_log_counter >= 100 and generation > 0:
-        print("GENERATION = " + str(generation) + " | PIECES PLACED = " + str(pieces_placed) + " | SUM SCORE = " + str(games.getSumScore()))
+    if generation_log_counter >= 500 and generation > 0:
+        print("GENERATION = " + str(generation) + " | PIECES PLACED = " + str(pieces_placed) + " | LINES = " + str(games.getLinesCleared()))
         generation_log_counter = 0
         sum_action_count = 0
+        watch_counter += 1
+    
+    if watch_counter >= 10 :
+        if graphics_init == False :
+            graphics_init = True
+            games.initGraphics();
+        watch_counter = 0
+
+    if graphics_init == True :
+        games.render(str(generation))
 
     state_t = torch.FloatTensor(state)
     q_values = model(state_t)

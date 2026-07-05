@@ -1,3 +1,4 @@
+#pragma once
 
 #include <array>
 #include <vector>
@@ -29,8 +30,7 @@ private:
   std::barrier<> barrier;
 
 public:
-
-  std::vector<std::vector<int>> states_cache; 
+  std::vector<std::vector<int>> states_cache;
 
   MultiGame(size_t parallel_game_count);
   ~MultiGame();
@@ -47,6 +47,14 @@ public:
   void checkGameLost();
 
   int getSumScore();
+  int getLinesCleared();
 
   std::vector<std::vector<int>> getStates();
+
+  void initGraphics();
+
+  void render(std::string &generation_counter);
+
+  void closeGraphics();
+
 };

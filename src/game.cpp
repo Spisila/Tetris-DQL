@@ -23,173 +23,93 @@ Game::~Game()
 {
 }
 
-// void Game::step()
-// {
+void Game::step()
+{
 
-//     switch (next_action)
-//     {
-//     case Actions::MOVE_RIGHT:
-//         move_tetromino(Movement_direction::RIGHT);
-//         break;
-//     case Actions::MOVE_LEFT:
-//         move_tetromino(Movement_direction::LEFT);
-//         break;
-//     case Actions::SOFT_DROP:
-//         move_tetromino(Movement_direction::DOWN);
-//         break;
-//     case Actions::ROTATE_CLOCKWISE:
-//         rotate_tetromino(Rotation::CLOCKWISE);
-//         break;
-//     case Actions::ROTATE_COUNTER_CLOCKWISE:
-//         rotate_tetromino(Rotation::COUNTER_CLOCKWISE);
-//         break;
-//     case Actions::HARD_DROP:
-//         hard_drop();
-//         break;
-//     case Actions::HOLD:
-//         if (hold_used == false)
-//         {
-//             hold_used = true;
-//             hold_current_piece();
-//         }
-//         break;
-//     default:
-//         break;
-//     }
-// }
+    switch (next_action)
+    {
+    case Actions::MOVE_RIGHT:
+        game_board.moveTetromino(MovementDirection::RIGHT);
+        break;
+    case Actions::MOVE_LEFT:
+        game_board.moveTetromino(MovementDirection::LEFT);
+        break;
+    case Actions::SOFT_DROP:
+        game_board.moveTetromino(MovementDirection::DOWN);
+        break;
+    case Actions::ROTATE_CLOCKWISE:
+        game_board.rotateTetromino(Rotation::CLOCKWISE);
+        break;
+    case Actions::ROTATE_COUNTER_CLOCKWISE:
+        game_board.rotateTetromino(Rotation::COUNTER_CLOCKWISE);
+        break;
+    case Actions::HARD_DROP:
+        hardDrop();
+        break;
+    case Actions::HOLD:
+        if (hold_used == false)
+        {
+            hold_used = true;
+            holdCurrentPiece();
+        }
+        break;
+    default:
+        break;
+    }
+}
 
-// void Game::reset()
-// {
-//     lost = false;
+void Game::reset()
+{
+    lost = false;
 
-//     for (int x = 0; x < board.size(); x++)
-//     {
-//         for (int y = 0; y < board.at(x).size(); y++)
-//         {
-//             board.at(x).at(y) = Cell_state::EMPTY;
-//         }
-//     }
+    game_board.clearBoard();
 
-//     generate_piece_queue();
-//     update_piece_queue();
+    piece_queue.generatePieceQueue();
+    piece_queue.updatePieceQueue();
 
-//     set_piece(Piece_type::J_PIECE_0);
-// }
+    game_board.setPiece(static_cast<PieceType>(piece_queue.getPieceQueue().at(0)));
+}
 
-// StepData Game::calculate_reward()
-// {
+StepData Game::calculateReward()
+{
 
-//     if (piece_set == true)
-//     {
-//         piece_set = false;
+    if (piece_set == true)
+    {
+        piece_set = false;
 
-//         int lines = clear_lines();
-//         int total_height = get_aggregate_height();
-//         int total_holes = get_amount_of_holes();
-//         int rugosity = get_rugosity();
+        int lines = game_board.clearLines();
+        int total_height = game_board.getAggregateHeight();
+        int total_holes = game_board.getAmountOfHoles();
+        int rugosity = game_board.getRugosity();
 
-//         std::array<Position, 4> spawn_positions = {Position(5, 1), Position(0, 0), Position(0, 0), Position(0, 0)};
+        std::array<Position, 4> spawn_positions = {
+            Position(5, 1),
+            Position(0, 0),
+            Position(0, 0),
+            Position(0, 0)};
 
-//         if (check_collision(spawn_positions))
-//         {
-//             StepData loss_step = {LOSS_SCORE_WEIGHT, true, true};
-//             return loss_step;
-//         }
+        if (game_board.checkCollisions(spawn_positions))
+        {
+            StepData loss_step = {LOSS_SCORE_WEIGHT, true, true};
+            return loss_step;
+        }
 
-//         float reward = (lines * LINES_CLEARED_WEIGHT) - (total_height * TOTAL_HEIGHT_WEIGHT) - (total_holes * HOLES_WEIGHT) - (rugosity * RUGOSITY_WEIGHT);
+        float reward =
+            (lines * LINES_CLEARED_WEIGHT) -
+            (total_height * TOTAL_HEIGHT_WEIGHT) -
+            (total_holes * HOLES_WEIGHT) -
+            (rugosity * RUGOSITY_WEIGHT);
 
-//         StepData piece_set_step = {reward, true, false};
+        StepData piece_set_step = {reward, true, false};
+        return piece_set_step;
+    }
 
-//         return piece_set_step;
-//     }
+    StepData gravity_step = {-0.005f, false, false};
 
-//     gravity_counter += 1;
+    return gravity_step;
+}
 
-//     if (gravity_counter >= 10)
-//     {
-//         tick_gravity();
-//         gravity_counter = 0;
-//     }
 
-//     StepData gravity_step = {-0.005f, false, false};
-
-//     return gravity_step;
-// }
-
-// ----------
-
-// void Game::init_graphics()
-// {
-//     SetTargetFPS(60);
-
-//     SetTraceLogLevel(LOG_WARNING);
-
-//     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Test");
-// }
-
-// void Game::render(std::string &generation_counter)
-// {
-//     PollInputEvents();
-
-//     if (!WindowShouldClose())
-//     {
-//         BeginDrawing();
-//         ClearBackground(BACKGROUND_COLOR);
-
-//         DrawText(TextFormat("Generation = %s", generation_counter), SCREEN_WIDTH / 2 + 400, SCREEN_HEIGHT / 2 - 400, 30, RED);
-
-//         for (int x = 0; x < board.size(); x++)
-//         {
-//             for (int y = 0; y < board.at(x).size(); y++)
-//             {
-//                 Color cell_color;
-
-//                 if (y < 4)
-//                 {
-//                     cell_color = SPAWN_COLOR;
-//                 }
-//                 else
-//                 {
-//                     cell_color = BOARD_COLOR;
-//                 }
-
-//                 if (board.at(x).at(y) == Cell_state::FILLED)
-//                 {
-//                     cell_color = FILLED_COLOR;
-//                 }
-
-//                 if (board.at(x).at(y) == Cell_state::ACTIVE)
-//                 {
-//                     int active_piece = static_cast<int>(active_tetromino.current_type);
-
-//                     if (active_piece < 4)
-//                         cell_color = SKYBLUE;
-//                     else if (active_piece >= 4 && active_piece < 8)
-//                         cell_color = DARKBLUE;
-//                     else if (active_piece >= 8 && active_piece < 12)
-//                         cell_color = ORANGE;
-//                     else if (active_piece >= 12 && active_piece < 16)
-//                         cell_color = YELLOW;
-//                     else if (active_piece >= 16 && active_piece < 20)
-//                         cell_color = GREEN;
-//                     else if (active_piece >= 20 && active_piece < 24)
-//                         cell_color = PURPLE;
-//                     else if (active_piece >= 24 && active_piece < 28)
-//                         cell_color = RED;
-//                 }
-
-//                 DrawRectangle(OFFSET_X + x * CELL_SIZE, OFFSET_Y + y * CELL_SIZE, CELL_SIZE - 1, CELL_SIZE - 1, cell_color);
-//             }
-//         }
-
-//         EndDrawing();
-//     }
-// }
-
-// void Game::close_graphics()
-// {
-//     CloseWindow();
-// }
 
 #pragma region GETTERS
 
@@ -220,12 +140,12 @@ std::vector<int> Game::getGameState()
 
     state.push_back(current_piece_type);
 
-    const PieceQueue &current_queue = getPieceQueue();
-    const auto &piece_queue = current_queue.getPieceQueue();
+    const PieceQueue &c_q = getPieceQueue();
+    const auto &p_q = c_q.getPieceQueue();
 
-    for (int piece : piece_queue)
+    for (int piece : p_q)
     {
-        state.push_back(formatPiece(piece_queue[piece]));
+        state.push_back(formatPiece(piece));
     }
 
     return state;
@@ -264,17 +184,17 @@ void Game::hardDrop()
 
     while (true)
     {
-        game_board.setTetrominoCellsStates(Cell_state::EMPTY, t.getAllPositions());
+        game_board.setTetrominoCellsStates(CellState::EMPTY, t.getAllPositions());
         auto projected_position = t.projectMovement(MovementDirection::DOWN);
 
         if (game_board.checkShouldSetPiece(projected_position))
         {
-            pieceWasSet();
+            lines_cleared += pieceWasSet();
             break;
         }
 
         t.setPositions(projected_position);
-        game_board.setTetrominoCellsStates(Cell_state::ACTIVE, projected_position);
+        game_board.setTetrominoCellsStates(CellState::ACTIVE, projected_position);
     }
 }
 
@@ -307,7 +227,7 @@ int Game::pieceWasSet()
 {
     piece_set = true;
     hold_used = false;
-    game_board.setTetrominoCellsStates(Cell_state::FILLED, game_board.getBoardTetromino().getAllPositions());
+    game_board.setTetrominoCellsStates(CellState::FILLED, game_board.getBoardTetromino().getAllPositions());
     game_board.setPiece(static_cast<PieceType>(piece_queue.getPieceQueue().at(0)));
     piece_queue.updatePieceQueue();
     return game_board.clearLines();
@@ -315,7 +235,7 @@ int Game::pieceWasSet()
 
 void Game::holdCurrentPiece()
 {
-    game_board.setTetrominoCellsStates(Cell_state::EMPTY, game_board.getBoardTetromino().getAllPositions());
+    game_board.setTetrominoCellsStates(CellState::EMPTY, game_board.getBoardTetromino().getAllPositions());
 
     Tetromino &t = game_board.getBoardTetromino();
 
@@ -333,3 +253,23 @@ void Game::holdCurrentPiece()
         game_board.setPiece(static_cast<PieceType>(temp));
     }
 }
+
+// void Board::tickGravity()
+// {
+//     tetromino.setTetrominoCellState(CellState::EMPTY);
+
+//     std::array<Position, 4> projected_position = project_movement(Movement_direction::DOWN);
+
+//     if (check_should_set_piece(projected_position))
+//     {
+//         piece_was_set();
+//         return;
+//     }
+
+//     for (int i = 0; i < active_tetromino.pieces_positions.size(); i++)
+//     {
+//         active_tetromino.pieces_positions.at(i) = projected_position.at(i);
+//     }
+
+//     set_tetromino_CellState(CellState::ACTIVE);
+// }

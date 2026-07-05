@@ -13,11 +13,11 @@ PYBIND11_MODULE(Tetris_AGENT, m)
 {
     m.doc() = "Tetris module";
 
-    py::enum_<Cell_state>(m, "CellState")
-        .value("EMPTY", Cell_state::EMPTY)
-        .value("SPAWN", Cell_state::SPAWN)
-        .value("ACTIVE", Cell_state::ACTIVE)
-        .value("FILLED", Cell_state::FILLED)
+    py::enum_<CellState>(m, "CellState")
+        .value("EMPTY", CellState::EMPTY)
+        .value("SPAWN", CellState::SPAWN)
+        .value("ACTIVE", CellState::ACTIVE)
+        .value("FILLED", CellState::FILLED)
         .export_values();
 
     py::enum_<Actions>(m, "Actions")
@@ -38,17 +38,16 @@ PYBIND11_MODULE(Tetris_AGENT, m)
     py::class_<MultiGame>(m, "MultiGame")
         .def(py::init<int>())
 
-        // .def("init_graphics", &Game::init_graphics, "Initializes window")
-        // .def("render", &Game::render, "Renders the board")
-        // .def("close_graphics", &Game::close_graphics, "Closes window")
+        .def("initGraphics", &MultiGame::initGraphics, "Initializes window")
+        .def("render", &MultiGame::render, "Renders the board")
+        .def("closeGraphics", &MultiGame::closeGraphics, "Closes window")
 
         .def("stepAll", &MultiGame::stepAll, "Runs a step on all the enviroments")
 
         .def("resetAll", &MultiGame::resetAll, "Restarts all of the environments")
         .def("resetThis", &MultiGame::resetThis, "Reset a specific environment")
 
-        .def("getSumScore", &MultiGame::getSumScore, "Sum score")
+        .def("getLinesCleared", &MultiGame::getLinesCleared, "Lines cleared")
 
         .def("getStates", &MultiGame::getStates, "Gets the state of all the environments");
-
 }

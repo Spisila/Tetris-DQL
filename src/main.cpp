@@ -32,12 +32,12 @@ void drawBoard(const Game &game)
         cell_color = BOARD_COLOR;
       }
 
-      if (cells[x][y] == Cell_state::FILLED)
+      if (cells[x][y] == CellState::FILLED)
       {
         cell_color = FILLED_COLOR;
       }
 
-      if (cells[x][y] == Cell_state::ACTIVE)
+      if (cells[x][y] == CellState::ACTIVE)
       {
         int active_piece = static_cast<int>(board.getBoardTetromino().getCurrentPieceType());
 
@@ -203,13 +203,13 @@ int main()
 
     // DrawText(TextFormat("QUEUE = %d", main_game.queue_index), SCREEN_WIDTH / 2 + 400, SCREEN_HEIGHT / 2 - 400, 30, RED);
     DrawText(TextFormat("CURRENT = %c", pieceTypeToChar(static_cast<PieceType>(main_game.getBoard().getBoardTetromino().getCurrentPieceType()))), SCREEN_WIDTH / 2 + 400, SCREEN_HEIGHT / 2 - 360, 30, RED);
-    DrawText(TextFormat("QUEUE = %c %c %c %c %c", 
-      pieceTypeToChar(static_cast<PieceType>(main_game.getPieceQueue().getPieceQueue().at(0))),
-      pieceTypeToChar(static_cast<PieceType>(main_game.getPieceQueue().getPieceQueue().at(1))),
-      pieceTypeToChar(static_cast<PieceType>(main_game.getPieceQueue().getPieceQueue().at(2))),
-      pieceTypeToChar(static_cast<PieceType>(main_game.getPieceQueue().getPieceQueue().at(3))),
-      pieceTypeToChar(static_cast<PieceType>(main_game.getPieceQueue().getPieceQueue().at(4)))),
-      SCREEN_WIDTH / 2 + 400, SCREEN_HEIGHT / 2 - 320, 30, RED);
+    DrawText(TextFormat("QUEUE = %c %c %c %c %c",
+                        pieceTypeToChar(static_cast<PieceType>(main_game.getPieceQueue().getPieceQueue().at(0))),
+                        pieceTypeToChar(static_cast<PieceType>(main_game.getPieceQueue().getPieceQueue().at(1))),
+                        pieceTypeToChar(static_cast<PieceType>(main_game.getPieceQueue().getPieceQueue().at(2))),
+                        pieceTypeToChar(static_cast<PieceType>(main_game.getPieceQueue().getPieceQueue().at(3))),
+                        pieceTypeToChar(static_cast<PieceType>(main_game.getPieceQueue().getPieceQueue().at(4)))),
+             SCREEN_WIDTH / 2 + 400, SCREEN_HEIGHT / 2 - 320, 30, RED);
 
     DrawText(TextFormat("HOLD = %c", pieceTypeToChar(static_cast<PieceType>(main_game.hold_piece_index))), SCREEN_WIDTH / 2 - 400, SCREEN_HEIGHT / 2 - 400, 30, RED);
 
