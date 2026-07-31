@@ -4,7 +4,7 @@
 
 namespace py = pybind11;
 
-#include <MultiGame.hpp>
+#include <multi_game.hpp>
 
 MultiGame::MultiGame(size_t parallel_game_count)
     : barrier(std::thread::hardware_concurrency())

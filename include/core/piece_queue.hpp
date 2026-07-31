@@ -6,6 +6,8 @@
 
 #include <random>
 
+#include <types.hpp>
+
 constexpr size_t queue_size = 5;
 
 class PieceQueue

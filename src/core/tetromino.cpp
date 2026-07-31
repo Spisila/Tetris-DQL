@@ -1,6 +1,8 @@
 #include <tetromino.hpp>
 #include <iostream>
 
+#include <types.hpp>
+
 Tetromino::Tetromino(/* args */)
 {
 }

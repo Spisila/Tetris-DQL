@@ -191,7 +191,7 @@ void Board::setPiece(PieceType new_piece)
         new_pivot_position};
 
     // Sets the other pieces around the spawn pivot position
-    for (int j = 0; j < new_piece_positions.size(); j++)
+    for (int j = 0; j < new_piece_offsets.size(); j++)
     {
         new_piece_positions[j + 1].x += new_piece_offsets[j].x;
         new_piece_positions[j + 1].y += new_piece_offsets[j].y;
@@ -215,6 +215,11 @@ void Board::setPiece(PieceType new_piece)
 
 bool Board::checkCollisions(std::array<Position, 4> projected_positions)
 {
+
+    if (checkOutOfLateralBounds(projected_positions))
+    {
+        return true;
+    }
 
     for (Position pos : projected_positions)
     {
@@ -260,7 +265,7 @@ bool Board::checkShouldSetPiece(std::array<Position, 4> projected_position)
     bool test_floor = checkTouchedFloor(projected_position);
     bool test_collision = checkCollisions(projected_position);
 
-    return test_floor || test_collision;
+    return test_collision || test_floor;
 }
 
 int Board::clearLines()

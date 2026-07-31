@@ -5,7 +5,7 @@
 #include <board.hpp>
 #include <shared.hpp>
 
-#include <MultiGame.hpp>
+#include <multi_game.hpp>
 
 namespace py = pybind11;
 

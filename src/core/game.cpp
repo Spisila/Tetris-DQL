@@ -109,8 +109,6 @@ StepData Game::calculateReward()
     return gravity_step;
 }
 
-
-
 #pragma region GETTERS
 
 int Game::getId()
@@ -151,6 +149,11 @@ std::vector<int> Game::getGameState()
     return state;
 }
 
+PieceQueue &Game::getPieceQueue()
+{
+    return piece_queue;
+}
+
 const PieceQueue &Game::getPieceQueue() const
 {
     return piece_queue;
@@ -182,13 +185,20 @@ void Game::hardDrop()
 
     Tetromino &t = game_board.getBoardTetromino();
 
+    int counter = 0;
+
     while (true)
     {
         game_board.setTetrominoCellsStates(CellState::EMPTY, t.getAllPositions());
         auto projected_position = t.projectMovement(MovementDirection::DOWN);
 
+        std::cout << projected_position.at(0).y << std::endl;
+
+        std::cout << game_board.checkShouldSetPiece(projected_position) << std::endl;
+
         if (game_board.checkShouldSetPiece(projected_position))
         {
+            std::cout << "BREAK" << std::endl;
             lines_cleared += pieceWasSet();
             break;
         }

@@ -7,7 +7,8 @@
 #include <unordered_map>
 
 #include <board.hpp>
-#include <piecequeue.hpp>
+#include <piece_queue.hpp>
+#include <types.hpp>
 
 #include <shared.hpp>
 
@@ -49,16 +50,7 @@ struct StepData
 
 // Map the piece types to positions relative to the pivot
 
-enum class Actions
-{
-  MOVE_LEFT,
-  MOVE_RIGHT,
-  SOFT_DROP,
-  ROTATE_CLOCKWISE,
-  ROTATE_COUNTER_CLOCKWISE,
-  HARD_DROP,
-  HOLD
-};
+
 
 class Game
 {
@@ -103,6 +95,7 @@ public:
 
   std::vector<int> getGameState();
 
+  PieceQueue &getPieceQueue();
   const PieceQueue &getPieceQueue() const;
 
   Board &getBoard();

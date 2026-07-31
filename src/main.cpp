@@ -108,9 +108,10 @@ char pieceTypeToChar(PieceType piece)
 int main()
 {
 
-  Game main_game(1);
+  Game main_game{1};
 
   Board &board = main_game.getBoard();
+  PieceQueue &queue = main_game.getPieceQueue();
 
   SetTargetFPS(60);
 
@@ -118,9 +119,9 @@ int main()
 
   InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "GEORGE TETRIS");
 
-  // main_game.set_piece(PieceType::T_PIECE_0);
-  // main_game.generate_piece_queue();
-  // main_game.update_piece_queue();
+  // main_game.getBoard().setPiece(PieceType::T_PIECE_0);
+  // queue.generatePieceQueue();
+  // queue.updatePieceQueue();
 
   while (!WindowShouldClose())
   {
@@ -202,18 +203,18 @@ int main()
     drawBoard(main_game);
 
     // DrawText(TextFormat("QUEUE = %d", main_game.queue_index), SCREEN_WIDTH / 2 + 400, SCREEN_HEIGHT / 2 - 400, 30, RED);
-    DrawText(TextFormat("CURRENT = %c", pieceTypeToChar(static_cast<PieceType>(main_game.getBoard().getBoardTetromino().getCurrentPieceType()))), SCREEN_WIDTH / 2 + 400, SCREEN_HEIGHT / 2 - 360, 30, RED);
-    DrawText(TextFormat("QUEUE = %c %c %c %c %c",
-                        pieceTypeToChar(static_cast<PieceType>(main_game.getPieceQueue().getPieceQueue().at(0))),
-                        pieceTypeToChar(static_cast<PieceType>(main_game.getPieceQueue().getPieceQueue().at(1))),
-                        pieceTypeToChar(static_cast<PieceType>(main_game.getPieceQueue().getPieceQueue().at(2))),
-                        pieceTypeToChar(static_cast<PieceType>(main_game.getPieceQueue().getPieceQueue().at(3))),
-                        pieceTypeToChar(static_cast<PieceType>(main_game.getPieceQueue().getPieceQueue().at(4)))),
-             SCREEN_WIDTH / 2 + 400, SCREEN_HEIGHT / 2 - 320, 30, RED);
+    // DrawText(TextFormat("CURRENT = %c", pieceTypeToChar(static_cast<PieceType>(main_game.getBoard().getBoardTetromino().getCurrentPieceType()))), SCREEN_WIDTH / 2 + 400, SCREEN_HEIGHT / 2 - 360, 30, RED);
+    // DrawText(TextFormat("QUEUE = %c %c %c %c %c",
+    //                     pieceTypeToChar(static_cast<PieceType>(main_game.getPieceQueue().getPieceQueue().at(0))),
+    //                     pieceTypeToChar(static_cast<PieceType>(main_game.getPieceQueue().getPieceQueue().at(1))),
+    //                     pieceTypeToChar(static_cast<PieceType>(main_game.getPieceQueue().getPieceQueue().at(2))),
+    //                     pieceTypeToChar(static_cast<PieceType>(main_game.getPieceQueue().getPieceQueue().at(3))),
+    //                     pieceTypeToChar(static_cast<PieceType>(main_game.getPieceQueue().getPieceQueue().at(4)))),
+    //          SCREEN_WIDTH / 2 + 400, SCREEN_HEIGHT / 2 - 320, 30, RED);
 
     DrawText(TextFormat("HOLD = %c", pieceTypeToChar(static_cast<PieceType>(main_game.hold_piece_index))), SCREEN_WIDTH / 2 - 400, SCREEN_HEIGHT / 2 - 400, 30, RED);
 
-    DrawText(TextFormat("SCORE = %d", main_game.score), SCREEN_WIDTH / 2 - 400, SCREEN_HEIGHT / 2 - 375, 30, WHITE);
+    // DrawText(TextFormat("SCORE = %d", main_game.score), SCREEN_WIDTH / 2 - 400, SCREEN_HEIGHT / 2 - 375, 30, WHITE);
 
     EndDrawing();
   }

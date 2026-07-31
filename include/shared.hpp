@@ -8,24 +8,6 @@ struct Position
   Position(int _x, int _y) : x(_x), y(_y) {}
 };
 
-enum class MovementDirection
-{
-  LEFT,
-  RIGHT,
-  DOWN,
-  UP,
-  TOP_RIGHT,
-  TOP_LEFT,
-  BOTTOM_RIGHT,
-  BOTTOM_LEFT
-};
-
-enum class Rotation
-{
-  CLOCKWISE,
-  COUNTER_CLOCKWISE,
-  ONE_EIGHTY
-};
 
 inline int formatPiece(int piece)
 {

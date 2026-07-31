@@ -1,5 +1,6 @@
 
-#include <piecequeue.hpp>
+#include "piece_queue.hpp"
+#include <types.hpp>
 
 PieceQueue::PieceQueue()
 {

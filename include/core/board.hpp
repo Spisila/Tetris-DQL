@@ -4,17 +4,12 @@
 #include <tetromino.hpp>
 
 #include <shared.hpp>
+#include <types.hpp>
 
 constexpr int BOARD_SIZE_X = 10;
 constexpr int BOARD_SIZE_Y = 24;
 
-enum class CellState
-{
-  EMPTY,
-  SPAWN,
-  ACTIVE,
-  FILLED
-};
+
 
 class Board
 {

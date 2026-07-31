@@ -13,52 +13,55 @@ FetchContent_Declare(
     GIT_REPOSITORY https://github.com/raysan5/raylib.git
 )
 
-FetchContent_Declare(
-    pybind11
-    GIT_REPOSITORY https://github.com/pybind/pybind11.git
-)
+# FetchContent_Declare(
+#     pybind11
+#     GIT_REPOSITORY https://github.com/pybind/pybind11.git
+# )
 
-FetchContent_MakeAvailable(raylib pybind11)
+# FetchContent_MakeAvailable(raylib pybind11)
+FetchContent_MakeAvailable(raylib)
 
  
 
 
 include_directories(
     ${PROJECT_SOURCE_DIR}/include
+    ${PROJECT_SOURCE_DIR}/include/core
 )
 
 add_executable(GEORGE 
 src/main.cpp
-src/game.cpp
-include/game.hpp
-src/board.cpp
-include/board.hpp
-src/tetromino.cpp
-include/tetromino.hpp
-src/piecequeue.cpp
-include/piecequeue.hpp
+src/core/game.cpp
+include/core/game.hpp
+src/core/board.cpp
+include/core/board.hpp
+src/core/tetromino.cpp
+include/core/tetromino.hpp
+src/core/piece_queue.cpp
+include/core/piece_queue.hpp
+include/core/types.hpp
 )
 
 target_link_libraries(GEORGE PRIVATE raylib)
 
-pybind11_add_module(Tetris_AGENT 
-src/board.cpp
-    src/game.cpp
-    src/MultiGame.cpp 
-    src/piecequeue.cpp
-    include/shared.hpp
-    src/tetromino.cpp
-    src/bindings.cpp
-)
+# pybind11_add_module(Tetris_AGENT 
+# src/board.cpp
+#     src/game.cpp
+#     src/multig_game.cpp 
+#     src/piece_queue.cpp
+#     include/shared.hpp
+#     src/tetromino.cpp
+#     src/bindings.cpp
+# )
 
-target_link_libraries(Tetris_AGENT PRIVATE raylib)
+# target_link_libraries(Tetris_AGENT PRIVATE raylib)
 
-set_target_properties(Tetris_AGENT PROPERTIES
-    PREFIX ""
-    SUFFIX ".pyd"
-    LIBRARY_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}"
-    RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}"
-)
+# set_target_properties(Tetris_AGENT PROPERTIES
+#     PREFIX ""
+#     SUFFIX ".pyd"
+#     LIBRARY_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}"
+#     RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}"
+# )
 
 set_target_properties(GEORGE PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/bin"
