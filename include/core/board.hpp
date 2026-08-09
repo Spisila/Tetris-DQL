@@ -27,8 +27,9 @@ public:
   Board(/* args */);
   ~Board();
 
-  std::array<std::array<CellState, BOARD_SIZE_Y>, BOARD_SIZE_X> getBoardCells() const;
+  // Getters
 
+  std::array<std::array<CellState, BOARD_SIZE_Y>, BOARD_SIZE_X> getBoardCells() const;
   std::array<int, BOARD_SIZE_X> getBoardHeight() const;
   int getAggregateHeight() const;
   int getAmountOfHoles() const;
@@ -38,8 +39,12 @@ public:
   Tetromino &getBoardTetromino();
   const Tetromino &getBoardTetromino() const;
 
+  //Setters
+
   void setTetrominoCellsStates(CellState state, std::array<Position, 4> positions);
 
+  //Methods
+    
   void moveTetromino(MovementDirection dir);
   void rotateTetromino(Rotation rot);
 

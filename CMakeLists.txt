@@ -18,10 +18,19 @@ FetchContent_Declare(
 #     GIT_REPOSITORY https://github.com/pybind/pybind11.git
 # )
 
+FetchContent_Declare(
+  googletest
+  GIT_REPOSITORY https://github.com/google/googletest.git
+  GIT_TAG main
+)
+
 # FetchContent_MakeAvailable(raylib pybind11)
 FetchContent_MakeAvailable(raylib)
 
- 
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(googletest)
+
+enable_testing()
 
 
 include_directories(
@@ -29,21 +38,36 @@ include_directories(
     ${PROJECT_SOURCE_DIR}/include/core
 )
 
-add_executable(GEORGE 
-src/main.cpp
-src/core/game.cpp
-include/core/game.hpp
-src/core/board.cpp
-include/core/board.hpp
-src/core/tetromino.cpp
-include/core/tetromino.hpp
-src/core/piece_queue.cpp
-include/core/piece_queue.hpp
-include/core/types.hpp
+set(CORE_SOURCES
+    src/core/game.cpp
+    include/core/game.hpp
+    src/core/board.cpp
+    include/core/board.hpp
+    src/core/tetromino.cpp
+    include/core/tetromino.hpp
+    src/core/piece_queue.cpp
+    include/core/piece_queue.hpp
+    include/core/types.hpp
 )
+
+add_executable(GEORGE 
+    src/main.cpp
+    ${CORE_SOURCES}
+)
+
 
 target_link_libraries(GEORGE PRIVATE raylib)
 
+include(GoogleTest)
+
+add_executable(GEORGE_TESTS
+    tests/board_test.cpp
+    ${CORE_SOURCES}
+)
+
+target_link_libraries(GEORGE_TESTS PRIVATE raylib gtest_main)
+
+gtest_discover_tests(GEORGE_TESTS)
 # pybind11_add_module(Tetris_AGENT 
 # src/board.cpp
 #     src/game.cpp
@@ -66,4 +90,3 @@ target_link_libraries(GEORGE PRIVATE raylib)
 set_target_properties(GEORGE PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/bin"
 )
-
