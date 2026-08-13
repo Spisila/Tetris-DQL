@@ -53,6 +53,7 @@ set(CORE_SOURCES
 add_executable(GEORGE 
     src/main.cpp
     ${CORE_SOURCES}
+    src/core/game_renderer.cpp
 )
 
 

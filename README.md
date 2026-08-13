@@ -1,18 +1,30 @@
 # DQN-Tetris-in-CPP
 ```
-GEORGE
-├─ audio
-│  ├─ placed1.wav
-│  ├─ placed2.wav
-│  └─ tetris.wav
+GEOGE
 ├─ CMakeLists.txt
 ├─ include
-│  └─ game.hpp
+│  ├─ core
+│  │  ├─ board.hpp
+│  │  ├─ game.hpp
+│  │  ├─ piece_queue.hpp
+│  │  ├─ tetromino.hpp
+│  │  └─ types.hpp
+│  ├─ rl
+│  │  └─ multi_game.hpp
+│  ├─ shared.hpp
+│  └─ tetris.hpp
 ├─ main.py
 ├─ README.md
 ├─ src
-│  ├─ game.cpp
-│  └─ main.cpp
-└─ Tetris_AGENT.cp314-win_amd64.pyd
+│  ├─ core
+│  │  ├─ board.cpp
+│  │  ├─ game.cpp
+│  │  ├─ piece_queue.cpp
+│  │  └─ tetromino.cpp
+│  ├─ main.cpp
+│  └─ rl
+│     └─ multi_game.cpp
+└─ tests
+   └─ board_test.cpp
 
 ```

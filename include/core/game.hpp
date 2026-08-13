@@ -12,26 +12,12 @@
 
 #include <shared.hpp>
 
-constexpr Color SPAWN_COLOR = Color{75, 75, 75, 255};
-constexpr Color BOARD_COLOR = Color{15, 15, 15, 255};
-constexpr Color FILLED_COLOR = Color{100, 100, 100, 255};
-
-constexpr int SCREEN_WIDTH = 1800;
-constexpr int SCREEN_HEIGHT = 900;
-constexpr int CELL_SIZE = 30;
-
-constexpr Color BACKGROUND_COLOR = Color{25, 25, 75, 255};
-
-constexpr int OFFSET_X = SCREEN_WIDTH / 2 - 250;
-constexpr int OFFSET_Y = SCREEN_HEIGHT / 2 - 300;
 
 constexpr float LOSS_SCORE_WEIGHT = -100.0f;
 constexpr float LINES_CLEARED_WEIGHT = 200.0f;
 constexpr float TOTAL_HEIGHT_WEIGHT = 0.5f;
 constexpr float HOLES_WEIGHT = 4.0f;
 constexpr float RUGOSITY_WEIGHT = 0.2f;
-
-constexpr int ENTIRE_BOARD_SIZE = BOARD_SIZE_X * BOARD_SIZE_Y;
 
 constexpr int piece_queue_size = 5;
 

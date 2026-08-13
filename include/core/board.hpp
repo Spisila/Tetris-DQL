@@ -9,11 +9,10 @@
 constexpr int BOARD_SIZE_X = 10;
 constexpr int BOARD_SIZE_Y = 24;
 
-
-
 class Board
 {
 private:
+
   std::array<std::array<CellState, BOARD_SIZE_Y>, BOARD_SIZE_X> board;
   Tetromino tetromino{};
 
