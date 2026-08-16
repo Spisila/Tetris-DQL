@@ -85,3 +85,11 @@ enum class Rotation
   COUNTER_CLOCKWISE,
   ONE_EIGHTY
 };
+
+struct StepData
+{
+  float reward;
+
+  bool piece_placed{false};
+  bool lost{false};
+};

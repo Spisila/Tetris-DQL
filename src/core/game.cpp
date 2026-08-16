@@ -23,95 +23,9 @@ Game::~Game()
 {
 }
 
-void Game::step()
-{
-
-    switch (next_action)
-    {
-    case Actions::MOVE_RIGHT:
-        game_board.moveTetromino(MovementDirection::RIGHT);
-        break;
-    case Actions::MOVE_LEFT:
-        game_board.moveTetromino(MovementDirection::LEFT);
-        break;
-    case Actions::SOFT_DROP:
-        game_board.moveTetromino(MovementDirection::DOWN);
-        break;
-    case Actions::ROTATE_CLOCKWISE:
-        game_board.rotateTetromino(Rotation::CLOCKWISE);
-        break;
-    case Actions::ROTATE_COUNTER_CLOCKWISE:
-        game_board.rotateTetromino(Rotation::COUNTER_CLOCKWISE);
-        break;
-    case Actions::HARD_DROP:
-        hardDrop();
-        break;
-    case Actions::HOLD:
-        if (hold_used == false)
-        {
-            hold_used = true;
-            holdCurrentPiece();
-        }
-        break;
-    default:
-        break;
-    }
-}
-
-void Game::reset()
-{
-    lost = false;
-
-    game_board.clearBoard();
-
-    piece_queue.generatePieceQueue();
-    piece_queue.updatePieceQueue();
-
-    game_board.setPiece(static_cast<PieceType>(piece_queue.getPieceQueue().at(0)));
-}
-
-StepData Game::calculateReward()
-{
-
-    if (piece_set == true)
-    {
-        piece_set = false;
-
-        int lines = game_board.clearLines();
-        int total_height = game_board.getAggregateHeight();
-        int total_holes = game_board.getAmountOfHoles();
-        int rugosity = game_board.getRugosity();
-
-        std::array<Position, 4> spawn_positions = {
-            Position(5, 1),
-            Position(0, 0),
-            Position(0, 0),
-            Position(0, 0)};
-
-        if (game_board.checkCollisions(spawn_positions))
-        {
-            StepData loss_step = {LOSS_SCORE_WEIGHT, true, true};
-            return loss_step;
-        }
-
-        float reward =
-            (lines * LINES_CLEARED_WEIGHT) -
-            (total_height * TOTAL_HEIGHT_WEIGHT) -
-            (total_holes * HOLES_WEIGHT) -
-            (rugosity * RUGOSITY_WEIGHT);
-
-        StepData piece_set_step = {reward, true, false};
-        return piece_set_step;
-    }
-
-    StepData gravity_step = {-0.005f, false, false};
-
-    return gravity_step;
-}
-
 #pragma region GETTERS
 
-int Game::getId()
+int Game::getId() const
 {
     return id;
 }
@@ -119,34 +33,6 @@ int Game::getId()
 int Game::getScore()
 {
     return score;
-}
-
-std::vector<int> Game::getGameState()
-{
-
-    std::vector<int> state;
-
-    std::vector<int> board_state = game_board.getBoardState();
-
-    for (int i : board_state)
-    {
-        state.push_back(i);
-    }
-
-    const Tetromino &current_tetromino = game_board.getBoardTetromino();
-    const int current_piece_type = current_tetromino.getCurrentPieceType();
-
-    state.push_back(current_piece_type);
-
-    const PieceQueue &c_q = getPieceQueue();
-    const auto &p_q = c_q.getPieceQueue();
-
-    for (int piece : p_q)
-    {
-        state.push_back(formatPiece(piece));
-    }
-
-    return state;
 }
 
 PieceQueue &Game::getPieceQueue()
@@ -192,13 +78,8 @@ void Game::hardDrop()
         game_board.setTetrominoCellsStates(CellState::EMPTY, t.getAllPositions());
         auto projected_position = t.projectMovement(MovementDirection::DOWN);
 
-        std::cout << projected_position.at(0).y << std::endl;
-
-        std::cout << game_board.checkShouldSetPiece(projected_position) << std::endl;
-
         if (game_board.checkShouldSetPiece(projected_position))
         {
-            std::cout << "BREAK" << std::endl;
             lines_cleared += pieceWasSet();
             break;
         }
@@ -235,10 +116,15 @@ void Game::increase_score(int lines)
 
 int Game::pieceWasSet()
 {
+    game_board.setTetrominoCellsStates(CellState::FILLED, game_board.getBoardTetromino().getAllPositions());
+    if (!game_board.setPiece(static_cast<PieceType>(piece_queue.getPieceQueue().at(0))))
+    {
+        lost = true;
+        return 0;
+    }
+
     piece_set = true;
     hold_used = false;
-    game_board.setTetrominoCellsStates(CellState::FILLED, game_board.getBoardTetromino().getAllPositions());
-    game_board.setPiece(static_cast<PieceType>(piece_queue.getPieceQueue().at(0)));
     piece_queue.updatePieceQueue();
     return game_board.clearLines();
 }

@@ -12,22 +12,7 @@
 
 #include <shared.hpp>
 
-
-constexpr float LOSS_SCORE_WEIGHT = -100.0f;
-constexpr float LINES_CLEARED_WEIGHT = 200.0f;
-constexpr float TOTAL_HEIGHT_WEIGHT = 0.5f;
-constexpr float HOLES_WEIGHT = 4.0f;
-constexpr float RUGOSITY_WEIGHT = 0.2f;
-
 constexpr int piece_queue_size = 5;
-
-struct StepData
-{
-  float reward;
-
-  bool piece_placed{false};
-  bool lost{false};
-};
 
 // First position is the pivot
 
@@ -35,8 +20,6 @@ struct StepData
 // If rotating counter-clockwise
 
 // Map the piece types to positions relative to the pivot
-
-
 
 class Game
 {
@@ -51,31 +34,24 @@ private:
 public:
   Actions next_action{Actions::HOLD};
 
+  bool lost = false;
+  bool piece_set = false;
+
   int lines_cleared = 0;
 
   int hold_piece_index = -1;
   bool hold_used = false;
-
-  bool lost = false;
-  bool piece_set = false;
 
   int gravity_counter = 0;
   int score = 0;
 
   Game(int _id);
 
-  void step();
-
-  void reset();
-
-  StepData calculateReward();
+  // ---------------
 
   // ---------------
 
- 
-  // ---------------
-
-  int getId();
+  int getId() const;
 
   int getScore();
 

@@ -35,6 +35,8 @@ int PieceQueue::getQueueIndex() const {
 
 void PieceQueue::generatePieceQueue()
 {
+    queue_index = 0;
+
     std::array<PieceType, 7> bag = {
         PieceType::I_PIECE_0,
         PieceType::J_PIECE_0,

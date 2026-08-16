@@ -29,7 +29,10 @@ public:
 
   void drawLoop();
 
+  void closeWindow();
+
   void drawBoard(const Game &game);
 
   char pieceTypeToChar(PieceType piece);
 };
+
