@@ -75,19 +75,24 @@ void GameRenderer::drawLoop()
 
   // DrawText(TextFormat("QUEUE = %d", game.ge), SCREEN_WIDTH / 2 + 400, SCREEN_HEIGHT / 2 - 400, 30, RED);
   // DrawText(TextFormat("CURRENT = %c", pieceTypeToChar(static_cast<PieceType>(game.getBoard().getBoardTetromino().getCurrentPieceType()))), SCREEN_WIDTH / 2 + 400, SCREEN_HEIGHT / 2 - 360, 30, RED);
-  // DrawText(TextFormat("QUEUE = %c %c %c %c %c",
-  //                     pieceTypeToChar(static_cast<PieceType>(game.getPieceQueue().getPieceQueue().at(0))),
-  //                     pieceTypeToChar(static_cast<PieceType>(game.getPieceQueue().getPieceQueue().at(1))),
-  //                     pieceTypeToChar(static_cast<PieceType>(game.getPieceQueue().getPieceQueue().at(2))),
-  //                     pieceTypeToChar(static_cast<PieceType>(game.getPieceQueue().getPieceQueue().at(3))),
-  //                     pieceTypeToChar(static_cast<PieceType>(game.getPieceQueue().getPieceQueue().at(4)))),
-  //          SCREEN_WIDTH / 2 + 400, SCREEN_HEIGHT / 2 - 320, 30, RED);
+  DrawText(TextFormat("QUEUE = %c %c %c %c %c",
+                      pieceTypeToChar(static_cast<PieceType>(game.getPieceQueue().getPieceQueue().at(0))),
+                      pieceTypeToChar(static_cast<PieceType>(game.getPieceQueue().getPieceQueue().at(1))),
+                      pieceTypeToChar(static_cast<PieceType>(game.getPieceQueue().getPieceQueue().at(2))),
+                      pieceTypeToChar(static_cast<PieceType>(game.getPieceQueue().getPieceQueue().at(3))),
+                      pieceTypeToChar(static_cast<PieceType>(game.getPieceQueue().getPieceQueue().at(4)))),
+           SCREEN_WIDTH / 2 + 400, SCREEN_HEIGHT / 2 - 320, 30, RED);
 
   DrawText(TextFormat("HOLD = %c", pieceTypeToChar(static_cast<PieceType>(game.hold_piece_index))), SCREEN_WIDTH / 2 - 400, SCREEN_HEIGHT / 2 - 400, 30, RED);
 
   DrawText(TextFormat("SCORE = %d", game.score), SCREEN_WIDTH / 2 - 400, SCREEN_HEIGHT / 2 - 375, 30, WHITE);
 
   EndDrawing();
+}
+
+void GameRenderer::closeWindow()
+{
+  closeWindow();
 }
 
 char GameRenderer::pieceTypeToChar(PieceType piece)

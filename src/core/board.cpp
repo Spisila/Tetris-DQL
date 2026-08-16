@@ -177,7 +177,8 @@ void Board::rotateTetromino(Rotation rot)
     setTetrominoCellsStates(CellState::ACTIVE, projected_rotation);
 }
 
-void Board::setPiece(PieceType new_piece)
+// TODO: Refactor this
+bool Board::setPiece(PieceType new_piece)
 {
 
     auto new_piece_offsets = rotationToPositionOffsets.at(new_piece);
@@ -189,7 +190,7 @@ void Board::setPiece(PieceType new_piece)
         new_pivot_position,
         new_pivot_position,
         new_pivot_position};
-
+    
     // Sets the other pieces around the spawn pivot position
     for (int j = 0; j < new_piece_offsets.size(); j++)
     {
@@ -197,13 +198,8 @@ void Board::setPiece(PieceType new_piece)
         new_piece_positions[j + 1].y += new_piece_offsets[j].y;
     }
 
-    // TODO: Needs to set game lost
-    if (checkCollisions(spawn_positions))
-    {
-        // std::cout << "GAME OVER!" << std::endl;
-        // exit(0);
-        // lost = true;
-        return;
+    if (checkLoss(new_piece_positions)) {
+        return false;
     }
 
     tetromino.setPositions(new_piece_positions);
@@ -211,6 +207,8 @@ void Board::setPiece(PieceType new_piece)
     tetromino.setTetrominoType(new_piece);
 
     setTetrominoCellsStates(CellState::ACTIVE, tetromino.getAllPositions());
+
+    return true;
 }
 
 bool Board::checkCollisions(std::array<Position, 4> projected_positions)
@@ -268,6 +266,23 @@ bool Board::checkShouldSetPiece(std::array<Position, 4> projected_position)
     return test_collision || test_floor;
 }
 
+// TODO: This needs to deal with loss logic
+bool Board::checkLoss(std::array<Position, 4> new_piece_positions)
+{
+  
+    // TODO: Needs to set game lost
+    if (checkCollisions(new_piece_positions))
+    {
+        // std::cout << "GAME OVER!" << std::endl;
+        // exit(0);
+        // lost = true;
+        clearBoard();
+        return true;
+    }
+
+    return false;
+}
+
 int Board::clearLines()
 {
     int cleared_lines = 0;
@@ -319,8 +334,9 @@ void Board::clearBoard()
     {
         for (int y = 0; y < board[x].size(); y++)
         {
-
-            board[x][y] = CellState::EMPTY;
+            if (board[x][y] == CellState::FILLED) {
+                board[x][y] = CellState::EMPTY;
+            }
         }
     }
 }

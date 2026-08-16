@@ -47,7 +47,7 @@ public:
   void moveTetromino(MovementDirection dir);
   void rotateTetromino(Rotation rot);
 
-  void setPiece(PieceType new_piece);
+  bool setPiece(PieceType new_piece);
 
   bool checkCollisions(std::array<Position, 4> projected_positions);
   bool checkTouchedFloor(std::array<Position, 4> projected_positions);
@@ -55,8 +55,12 @@ public:
 
   bool checkShouldSetPiece(std::array<Position, 4> projected_position);
 
+  bool checkLoss(std::array<Position, 4> new_piece_positions);
+
   void tickGravity();
   int clearLines();
 
   void clearBoard();
 };
+
+

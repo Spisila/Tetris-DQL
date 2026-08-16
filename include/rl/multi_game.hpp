@@ -10,6 +10,8 @@
 #include <barrier>
 
 #include <game.hpp>
+#include <game_renderer.hpp>
+#include <rl_env.hpp>
 
 #include <pybind11/pybind11.h>
 #include <pybind11/numpy.h>
@@ -21,13 +23,18 @@ class MultiGame
 private:
   size_t GAME_AMOUNT = 8;
 
-  std::vector<Game> games;
-  std::vector<std::span<Game>> segments;
-
-  bool running{false};
-  std::vector<std::thread> game_workers;
+  std::vector<RLEnv> games;
 
   std::barrier<> barrier;
+  
+  std::vector<std::span<RLEnv>> segments;
+  std::vector<std::thread> game_workers;
+  
+  GameRenderer renderer;
+
+
+  bool running{false};
+
 
 public:
   std::vector<std::vector<int>> states_cache;
@@ -52,9 +59,8 @@ public:
   std::vector<std::vector<int>> getStates();
 
   void initGraphics();
-
   void render(std::string &generation_counter);
-
   void closeGraphics();
 
 };
+

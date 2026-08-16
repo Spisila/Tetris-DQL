@@ -13,10 +13,10 @@ FetchContent_Declare(
     GIT_REPOSITORY https://github.com/raysan5/raylib.git
 )
 
-# FetchContent_Declare(
-#     pybind11
-#     GIT_REPOSITORY https://github.com/pybind/pybind11.git
-# )
+FetchContent_Declare(
+    pybind11
+    GIT_REPOSITORY https://github.com/pybind/pybind11.git
+)
 
 FetchContent_Declare(
   googletest
@@ -24,7 +24,7 @@ FetchContent_Declare(
   GIT_TAG main
 )
 
-# FetchContent_MakeAvailable(raylib pybind11)
+FetchContent_MakeAvailable(pybind11)
 FetchContent_MakeAvailable(raylib)
 
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
@@ -36,6 +36,7 @@ enable_testing()
 include_directories(
     ${PROJECT_SOURCE_DIR}/include
     ${PROJECT_SOURCE_DIR}/include/core
+    ${PROJECT_SOURCE_DIR}/include/rl
 )
 
 set(CORE_SOURCES
@@ -54,6 +55,7 @@ add_executable(GEORGE
     src/main.cpp
     ${CORE_SOURCES}
     src/core/game_renderer.cpp
+
 )
 
 
@@ -69,24 +71,24 @@ add_executable(GEORGE_TESTS
 target_link_libraries(GEORGE_TESTS PRIVATE raylib gtest_main)
 
 gtest_discover_tests(GEORGE_TESTS)
-# pybind11_add_module(Tetris_AGENT 
-# src/board.cpp
-#     src/game.cpp
-#     src/multig_game.cpp 
-#     src/piece_queue.cpp
-#     include/shared.hpp
-#     src/tetromino.cpp
-#     src/bindings.cpp
-# )
 
-# target_link_libraries(Tetris_AGENT PRIVATE raylib)
+pybind11_add_module(Tetris_AGENT 
+    include/rl/rl_env.hpp
+    src/rl/rl_env.cpp
+    src/core/game_renderer.cpp
+    src/rl/multi_game.cpp
+    ${CORE_SOURCES}
+    src/bindings.cpp
+)
 
-# set_target_properties(Tetris_AGENT PROPERTIES
-#     PREFIX ""
-#     SUFFIX ".pyd"
-#     LIBRARY_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}"
-#     RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}"
-# )
+target_link_libraries(Tetris_AGENT PRIVATE raylib)
+
+set_target_properties(Tetris_AGENT PROPERTIES
+    PREFIX ""
+    SUFFIX ".pyd"
+    LIBRARY_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}"
+    RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}"
+)
 
 set_target_properties(GEORGE PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/bin"

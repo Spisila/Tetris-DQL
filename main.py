@@ -15,7 +15,7 @@ import torch.nn.functional as F
 agent_path = os.path.abspath("./Release")
 sys.path.append(agent_path)
 
-import Tetris_AGENT
+from Debug import Tetris_AGENT
 
 NUM_NEURONS = 128
 
@@ -122,6 +122,8 @@ def back_propagation(samples) :
 
     optimizer.step()
 
+print("Started")
+
 games = Tetris_AGENT.MultiGame(128)
 
 model = DQN(input_dim=39, output_dim=7)
@@ -157,9 +159,18 @@ graphics_init = False
 finished_watch_counter = 0
 finished_watch_max = 20
 
+print("Before training loop")
+
+# games.initGraphics()
+
 while True:
 
     action_count = 0
+
+    # games.render(str(generation))
+
+    # print("Action count = " + str(action_count))
+    # print("Generation   = " + str(generation_log_counter))
 
     if pieces_placed_counter >= 500 :
         target_model.load_state_dict(model.state_dict())
@@ -174,7 +185,7 @@ while True:
     if watch_counter >= 10 :
         if graphics_init == False :
             graphics_init = True
-            games.initGraphics();
+            games.initGraphics()
         watch_counter = 0
 
     if graphics_init == True :
@@ -200,11 +211,10 @@ while True:
     for i in range(len(action_indexes)) :
 
         action_enums.append(Tetris_AGENT.Actions(action_indexes[i]))
-    
+
     step_data = games.stepAll(action_enums)
 
     next_state = np.array(get_all_current_state(games), dtype=np.float32)
-
 
     for i in range(len(step_data)) :
 
@@ -212,7 +222,6 @@ while True:
 
         if step_i.piece_placed == True :
             action_count += 1
-
 
             pieces_placed += 1
             pieces_placed_counter += 1
@@ -225,8 +234,6 @@ while True:
             generation += 1
             generation_log_counter += 1
             
-
-
     for i in range(len(state)) :
         
         buffer.push(state[i], action_enums[i].value, step_data[i].reward, next_state[i], step_data[i].lost)

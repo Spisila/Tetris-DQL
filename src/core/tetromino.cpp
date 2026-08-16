@@ -71,7 +71,7 @@ PieceType Tetromino::changeTetrominoeRotation(Rotation rot)
 {
 
   int current_index = static_cast<int>(current_piece_type);
-  int general_index;
+  int general_index = 0;
 
   if (current_index < 4)
     general_index = 0;
@@ -87,6 +87,9 @@ PieceType Tetromino::changeTetrominoeRotation(Rotation rot)
     general_index = 20;
   else if (current_index >= 24 && current_index < 28)
     general_index = 24;
+  else {
+    general_index = 0;
+  }
 
   int step;
 
