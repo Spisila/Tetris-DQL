@@ -22,25 +22,12 @@ int main()
   Board &board = main_game.getBoard();
   PieceQueue &queue = main_game.getPieceQueue();
 
-  // main_game.getBoard().setPiece(PieceType::T_PIECE_0);
-  // queue.generatePieceQueue();
-  // queue.updatePieceQueue();
-
   renderer.initWindow();
 
   while (!WindowShouldClose())
   {
     renderer.drawLoop();
-    // main_game.get_piece_queue();
-
-    // main_game.increase_gravity_counter();
-
-    // if (main_game.gravity_counter >= 20)
-    // {
-    //   std::cout << main_game.gravity_counter << std::endl;
-    //   main_game.tick_gravity();
-    //   main_game.gravity_counter = 0;
-    // }
+    // main_game.tickGravity();
 
     if (IsKeyPressed(KEY_LEFT))
     {
@@ -79,28 +66,10 @@ int main()
       main_game.hardDrop();
     }
 
-    // int cleared_lines = main_game.clear_lines();
+    int cleared_lines = main_game.getBoard().clearLines();
 
-    // if (cleared_lines > 0)
-    // {
-    //   switch (cleared_lines)
-    //   {
-    //   case 1:
-    //     main_game.score += 100;
-    //     break;
-    //   case 2:
-    //     main_game.score += 300;
-    //     break;
-    //   case 3:
-    //     main_game.score += 500;
-    //     break;
-    //   case 4:
-    //     main_game.score += 1000;
-    //     break;
-    //   default:
-    //     break;
-    //   }
-    // }
+    main_game.increaseScore(cleared_lines);
+
   }
 
   CloseWindow();

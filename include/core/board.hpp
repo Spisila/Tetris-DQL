@@ -49,9 +49,9 @@ public:
 
   bool setPiece(PieceType new_piece);
 
+  bool checkOutOfLateralBounds(std::array<Position, 4> projected_positions);
   bool checkCollisions(std::array<Position, 4> projected_positions);
   bool checkTouchedFloor(std::array<Position, 4> projected_positions);
-  bool checkOutOfLateralBounds(std::array<Position, 4> projected_positions);
 
   bool checkShouldSetPiece(std::array<Position, 4> projected_position);
 

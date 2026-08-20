@@ -190,15 +190,16 @@ bool Board::setPiece(PieceType new_piece)
         new_pivot_position,
         new_pivot_position,
         new_pivot_position};
-    
-    // Sets the other pieces around the spawn pivot position
+
+    // Apply offsets
     for (int j = 0; j < new_piece_offsets.size(); j++)
     {
         new_piece_positions[j + 1].x += new_piece_offsets[j].x;
         new_piece_positions[j + 1].y += new_piece_offsets[j].y;
     }
 
-    if (checkLoss(new_piece_positions)) {
+    if (checkLoss(new_piece_positions))
+    {
         return false;
     }
 
@@ -269,14 +270,13 @@ bool Board::checkShouldSetPiece(std::array<Position, 4> projected_position)
 // TODO: This needs to deal with loss logic
 bool Board::checkLoss(std::array<Position, 4> new_piece_positions)
 {
-  
+
     // TODO: Needs to set game lost
     if (checkCollisions(new_piece_positions))
     {
         // std::cout << "GAME OVER!" << std::endl;
         // exit(0);
         // lost = true;
-        clearBoard();
         return true;
     }
 
@@ -292,7 +292,7 @@ int Board::clearLines()
     {
         int filled_count = 0;
 
-        // Checa se a linha esta cheia
+        // Check if line full
         for (int x = 0; x < BOARD_SIZE_X; x++)
         {
 
@@ -307,8 +307,8 @@ int Board::clearLines()
         if (filled_count == BOARD_SIZE_X)
         {
             cleared_lines++;
+            
             int cleared_line = line;
-
             for (int line_above = line - 1; line_above > 0; line_above--)
             {
                 for (int cell = 0; cell < BOARD_SIZE_X; cell++)
@@ -323,7 +323,6 @@ int Board::clearLines()
             }
         }
     }
-
     return cleared_lines;
 }
 
@@ -334,7 +333,8 @@ void Board::clearBoard()
     {
         for (int y = 0; y < board[x].size(); y++)
         {
-            if (board[x][y] == CellState::FILLED) {
+            if (board[x][y] == CellState::FILLED)
+            {
                 board[x][y] = CellState::EMPTY;
             }
         }

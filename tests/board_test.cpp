@@ -1,6 +1,12 @@
 #include <gtest/gtest.h>
 #include <board.hpp>
 
+TEST(BoardTests, setPiece)
+{
+
+    Board b {};
+}
+
 TEST(BoardTests, checkOutOfLateralBounds_invalidPositions)
 {
     Board b{};
@@ -103,4 +109,8 @@ TEST(BoardTests, chechTouchedFloor_invalidPositions)
         Position{5, 4}};
 
     EXPECT_TRUE(b.checkTouchedFloor(out_of_bounds_pos));
+}
+
+TEST(BoardTests, name)
+{
 }

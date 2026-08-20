@@ -150,7 +150,7 @@ int MultiGame::getLinesCleared()
   int sum = 0;
   for (RLEnv &game : games)
   {
-    sum += game.getGameEnv().lines_cleared;
+    sum += game.getGameEnv().getClearedLines();
   }
   return sum;
 }

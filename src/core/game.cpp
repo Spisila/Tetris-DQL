@@ -59,7 +59,7 @@ const Board &Game::getBoard() const
 
 #pragma region SETTERS
 
-void Game::reset_score()
+void Game::resetScore()
 {
     score = 0;
 }
@@ -80,7 +80,7 @@ void Game::hardDrop()
 
         if (game_board.checkShouldSetPiece(projected_position))
         {
-            lines_cleared += pieceWasSet();
+            increaseScore(pieceWasSet());
             break;
         }
 
@@ -89,8 +89,10 @@ void Game::hardDrop()
     }
 }
 
-void Game::increase_score(int lines)
+void Game::increaseScore(int lines)
 {
+
+    lines_cleared += lines;
 
     switch (lines)
     {
@@ -114,12 +116,22 @@ void Game::increase_score(int lines)
     }
 }
 
+int Game::getClearedLines()
+{
+    return lines_cleared;
+}
+
 int Game::pieceWasSet()
 {
-    game_board.setTetrominoCellsStates(CellState::FILLED, game_board.getBoardTetromino().getAllPositions());
-    if (!game_board.setPiece(static_cast<PieceType>(piece_queue.getPieceQueue().at(0))))
+
+    auto tetromino_positions = game_board.getBoardTetromino().getAllPositions();
+
+    auto next_piece_in_queue = static_cast<PieceType>(piece_queue.getPieceQueue().at(0));
+
+    game_board.setTetrominoCellsStates(CellState::FILLED, tetromino_positions);
+    if (!game_board.setPiece(next_piece_in_queue))
     {
-        lost = true;
+        gameLost();
         return 0;
     }
 
@@ -150,22 +162,45 @@ void Game::holdCurrentPiece()
     }
 }
 
-// void Board::tickGravity()
-// {
-//     tetromino.setTetrominoCellState(CellState::EMPTY);
+void Game::setGravity(bool on)
+{
+    gravity_on = on;
+}
 
-//     std::array<Position, 4> projected_position = project_movement(Movement_direction::DOWN);
+void Game::gameLost()
+{
+    lost = true;
+    game_board.clearBoard();
+    piece_queue.generatePieceQueue();
+    piece_queue.updatePieceQueue();
+    game_board.setPiece(static_cast<PieceType>(getPieceQueue().getPieceQueue().at(0)));
+    game_board.setTetrominoCellsStates(CellState::ACTIVE, game_board.getBoardTetromino().getAllPositions());
+}
 
-//     if (check_should_set_piece(projected_position))
-//     {
-//         piece_was_set();
-//         return;
-//     }
+// TODO: Make gravity work
+void Game::tickGravity()
+{
 
-//     for (int i = 0; i < active_tetromino.pieces_positions.size(); i++)
-//     {
-//         active_tetromino.pieces_positions.at(i) = projected_position.at(i);
-//     }
+    gravity_counter++;
 
-//     set_tetromino_CellState(CellState::ACTIVE);
-// }
+    if (gravity_counter >= gravity_ticks)
+    {
+        gravity_counter = 0;
+
+        auto tetromino = game_board.getBoardTetromino();
+
+        game_board.setTetrominoCellsStates(CellState::EMPTY, tetromino.getAllPositions());
+
+        std::array<Position, 4> projected_position = tetromino.projectMovement(MovementDirection::DOWN);
+
+        if (game_board.checkShouldSetPiece(projected_position))
+        {
+            pieceWasSet();
+            return;
+        }
+
+        tetromino.setPositions(projected_position);
+
+        game_board.setTetrominoCellsStates(CellState::ACTIVE, tetromino.getAllPositions());
+    }
+}

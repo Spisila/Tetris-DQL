@@ -85,14 +85,14 @@ void GameRenderer::drawLoop()
 
   DrawText(TextFormat("HOLD = %c", pieceTypeToChar(static_cast<PieceType>(game.hold_piece_index))), SCREEN_WIDTH / 2 - 400, SCREEN_HEIGHT / 2 - 400, 30, RED);
 
-  DrawText(TextFormat("SCORE = %d", game.score), SCREEN_WIDTH / 2 - 400, SCREEN_HEIGHT / 2 - 375, 30, WHITE);
+  DrawText(TextFormat("SCORE = %d", game.getScore()), SCREEN_WIDTH / 2 - 400, SCREEN_HEIGHT / 2 - 375, 30, WHITE);
 
   EndDrawing();
 }
 
 void GameRenderer::closeWindow()
 {
-  closeWindow();
+  CloseWindow();
 }
 
 char GameRenderer::pieceTypeToChar(PieceType piece)

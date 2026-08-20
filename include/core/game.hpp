@@ -26,10 +26,16 @@ class Game
 private:
   int id;
 
-  int GRAVITY_TICKS = 30;
+  bool gravity_on = false;
+  int gravity_counter = 0;
+  int gravity_ticks = 30;
 
   Board game_board{};
   PieceQueue piece_queue{};
+
+  int lines_cleared = 0;
+
+  int score = 0;
 
 public:
   Actions next_action{Actions::HOLD};
@@ -37,21 +43,16 @@ public:
   bool lost = false;
   bool piece_set = false;
 
-  int lines_cleared = 0;
-
   int hold_piece_index = -1;
   bool hold_used = false;
-
-  int gravity_counter = 0;
-  int score = 0;
 
   Game(int _id);
 
   // ---------------
 
-  // ---------------
-
   int getId() const;
+
+  int getClearedLines();
 
   int getScore();
 
@@ -63,22 +64,21 @@ public:
   Board &getBoard();
   const Board &getBoard() const;
 
-  void increase_score(int lines);
-  void reset_score();
-  void increase_gravity_counter();
+  void increaseScore(int lines);
+  void resetScore();
 
-  void update_active_tetromino();
-
-  void tick_gravity();
+  void setGravity(bool on);
+  void tickGravity();
 
   void hardDrop();
 
-  // TODO: Implement hold again
   void holdCurrentPiece();
 
   int pieceWasSet();
 
-  // int clear_lines();
+  void gameLost();
 
   ~Game();
 };
+
+
