@@ -56,6 +56,7 @@ void RLEnv::reset()
   game_env.getPieceQueue().updatePieceQueue();
 
   game_env.getBoard().setPiece(static_cast<PieceType>(game_env.getPieceQueue().getPieceQueue().at(0)));
+  game_env.getBoard().setTetrominoCellsStates(CellState::ACTIVE, game_env.getBoard().getBoardTetromino().getAllPositions());
 }
 
 StepData RLEnv::calculateReward()

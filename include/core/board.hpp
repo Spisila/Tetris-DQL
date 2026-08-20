@@ -16,6 +16,8 @@ private:
   std::array<std::array<CellState, BOARD_SIZE_Y>, BOARD_SIZE_X> board;
   Tetromino tetromino{};
 
+  // TODO: make spawn positions a single position for the pivot
+  // TODO: make spawn position scale with board size
   std::array<Position, 4> spawn_positions = {
       Position(5, 1),
       Position(0, 0),
@@ -44,8 +46,8 @@ public:
 
   //Methods
     
-  void moveTetromino(MovementDirection dir);
-  void rotateTetromino(Rotation rot);
+  bool moveTetromino(MovementDirection dir);
+  bool rotateTetromino(Rotation rot);
 
   bool setPiece(PieceType new_piece);
 
@@ -54,8 +56,6 @@ public:
   bool checkTouchedFloor(std::array<Position, 4> projected_positions);
 
   bool checkShouldSetPiece(std::array<Position, 4> projected_position);
-
-  bool checkLoss(std::array<Position, 4> new_piece_positions);
 
   void tickGravity();
   int clearLines();

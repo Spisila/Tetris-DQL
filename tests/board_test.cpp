@@ -1,10 +1,96 @@
 #include <gtest/gtest.h>
 #include <board.hpp>
 
-TEST(BoardTests, setPiece)
+TEST(BoardTests, moveTetromino_validMove)
+{
+    Board b{};
+
+    b.clearBoard();
+
+    b.setPiece(PieceType::I_PIECE_0);
+
+    EXPECT_TRUE(b.moveTetromino(MovementDirection::RIGHT));
+}
+
+TEST(BoardTests, moveTetromino_invalidMove)
+{
+    Board b{};
+
+    b.clearBoard();
+
+    b.setPiece(PieceType::I_PIECE_0);
+
+    std::array<Position, 4> filled_spawn_position{
+        Position{8, 1},
+        Position{8, 2},
+        Position{8, 3},
+        Position{8, 4}};
+
+    b.setTetrominoCellsStates(CellState::FILLED, filled_spawn_position);
+
+    EXPECT_FALSE(b.moveTetromino(MovementDirection::RIGHT));
+}
+
+TEST(BoardTests, rotateTetromino_validMove)
+{
+    Board b{};
+
+    b.clearBoard();
+
+    b.setPiece(PieceType::S_PIECE_0);
+
+    EXPECT_TRUE(b.rotateTetromino(Rotation::CLOCKWISE));
+}
+
+TEST(BoardTests, rotateTetromino_invalidMove)
+{
+    Board b{};
+
+    b.clearBoard();
+
+    b.setPiece(PieceType::S_PIECE_0);
+
+    std::array<Position, 4> filled_spawn_position{
+        Position{6, 1},
+        Position{6, 2},
+        Position{6, 3},
+        Position{6, 4}};
+
+    b.setTetrominoCellsStates(CellState::FILLED, filled_spawn_position);
+
+    EXPECT_FALSE(b.rotateTetromino(Rotation::CLOCKWISE));
+}
+
+TEST(BoardTests, setPiece_returnFalse)
 {
 
-    Board b {};
+    Board b{};
+
+    std::array<Position, 4> filled_spawn_position{
+        Position{5, 1},
+        Position{5, 2},
+        Position{5, 3},
+        Position{5, 4}};
+
+    b.setTetrominoCellsStates(CellState::FILLED, filled_spawn_position);
+
+    EXPECT_FALSE(b.setPiece(PieceType::I_PIECE_0));
+}
+
+TEST(BoardTests, setPiece_returnTrue)
+{
+
+    Board b{};
+
+    std::array<Position, 4> clear_spawn_position{
+        Position{5, 1},
+        Position{5, 2},
+        Position{5, 3},
+        Position{5, 4}};
+
+    b.setTetrominoCellsStates(CellState::EMPTY, clear_spawn_position);
+
+    EXPECT_TRUE(b.setPiece(PieceType::I_PIECE_0));
 }
 
 TEST(BoardTests, checkOutOfLateralBounds_invalidPositions)
@@ -109,6 +195,34 @@ TEST(BoardTests, chechTouchedFloor_invalidPositions)
         Position{5, 4}};
 
     EXPECT_TRUE(b.checkTouchedFloor(out_of_bounds_pos));
+}
+
+TEST(BoardTests, clearLines_noLinesCleared)
+{
+
+    Board b{};
+    auto board = b.getBoardCells();
+
+    for (int i = 0; i < BOARD_SIZE_X; i++)
+    {
+
+        board[0][i] = CellState::FILLED;
+        board[1][i] = CellState::FILLED;
+        board[2][i] = CellState::FILLED;
+        board[3][i] = CellState::FILLED;
+    }
+
+    EXPECT_EQ(1000, b.clearLines());
+}
+
+TEST(BoardTests, clearLines_noLinesCleared)
+{
+
+    Board b{};
+
+    b.clearBoard();
+
+    EXPECT_EQ(0, b.clearLines());
 }
 
 TEST(BoardTests, name)

@@ -161,13 +161,13 @@ finished_watch_max = 20
 
 print("Before training loop")
 
-# games.initGraphics()
+games.initGraphics()
 
 while True:
 
     action_count = 0
 
-    # games.render(str(generation))
+    games.render(str(generation))
 
     # print("Action count = " + str(action_count))
     # print("Generation   = " + str(generation_log_counter))
@@ -182,11 +182,11 @@ while True:
         sum_action_count = 0
         watch_counter += 1
     
-    if watch_counter >= 10 :
-        if graphics_init == False :
-            graphics_init = True
-            games.initGraphics()
-        watch_counter = 0
+    # if watch_counter >= 10 :
+    #     if graphics_init == False :
+    #         graphics_init = True
+    #         games.initGraphics()
+    #     watch_counter = 0
 
     if graphics_init == True :
         games.render(str(generation))
@@ -242,4 +242,3 @@ while True:
 
     if epsilon > 0.05 :
         epsilon -= 0.00005
-

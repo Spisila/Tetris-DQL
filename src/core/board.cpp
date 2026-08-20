@@ -142,13 +142,13 @@ void Board::setTetrominoCellsStates(CellState state, std::array<Position, 4> pos
     }
 }
 
-void Board::moveTetromino(MovementDirection dir)
+bool Board::moveTetromino(MovementDirection dir)
 {
     std::array<Position, 4> projected_position = tetromino.projectMovement(dir);
 
     if (checkOutOfLateralBounds(projected_position) || checkCollisions(projected_position))
     {
-        return;
+        return false;
     }
 
     setTetrominoCellsStates(CellState::EMPTY, tetromino.getAllPositions());
@@ -156,16 +156,18 @@ void Board::moveTetromino(MovementDirection dir)
     tetromino.setPositions(projected_position);
 
     setTetrominoCellsStates(CellState::ACTIVE, projected_position);
+
+    return true;
 }
 
-void Board::rotateTetromino(Rotation rot)
+bool Board::rotateTetromino(Rotation rot)
 {
 
     std::array<Position, 4> projected_rotation = tetromino.projectRotation(rot);
 
     if (checkOutOfLateralBounds(projected_rotation) || checkCollisions(projected_rotation))
     {
-        return;
+        return false;
     }
 
     setTetrominoCellsStates(CellState::EMPTY, tetromino.getAllPositions());
@@ -175,6 +177,8 @@ void Board::rotateTetromino(Rotation rot)
     tetromino.setTetrominoType(tetromino.changeTetrominoeRotation(rot));
 
     setTetrominoCellsStates(CellState::ACTIVE, projected_rotation);
+
+    return true;
 }
 
 // TODO: Refactor this
@@ -198,7 +202,7 @@ bool Board::setPiece(PieceType new_piece)
         new_piece_positions[j + 1].y += new_piece_offsets[j].y;
     }
 
-    if (checkLoss(new_piece_positions))
+    if (checkCollisions(new_piece_positions))
     {
         return false;
     }
@@ -267,22 +271,6 @@ bool Board::checkShouldSetPiece(std::array<Position, 4> projected_position)
     return test_collision || test_floor;
 }
 
-// TODO: This needs to deal with loss logic
-bool Board::checkLoss(std::array<Position, 4> new_piece_positions)
-{
-
-    // TODO: Needs to set game lost
-    if (checkCollisions(new_piece_positions))
-    {
-        // std::cout << "GAME OVER!" << std::endl;
-        // exit(0);
-        // lost = true;
-        return true;
-    }
-
-    return false;
-}
-
 int Board::clearLines()
 {
     int cleared_lines = 0;
@@ -307,7 +295,7 @@ int Board::clearLines()
         if (filled_count == BOARD_SIZE_X)
         {
             cleared_lines++;
-            
+
             int cleared_line = line;
             for (int line_above = line - 1; line_above > 0; line_above--)
             {
