@@ -58,16 +58,17 @@ public:
 
   int getCurrentPieceTypeFormatted() const;
   int getCurrentPieceType() const;
-  
+
   Position getPivotPosition() const;
   const std::array<Position, 4> getAllPositions() const;
-  
+  int getCurrentRotation() const;
 
   void setTetrominoType(PieceType new_type);
-  
+
   void setPositions(std::array<Position, 4> new_pos);
   PieceType changeTetrominoeRotation(Rotation rot);
 
   std::array<Position, 4> projectMovement(MovementDirection dir);
   std::array<Position, 4> projectRotation(Rotation rot);
 };
+

@@ -39,6 +39,7 @@ private:
 
 public:
   Actions next_action{Actions::HOLD};
+  PreciseActions next_precise_action{PreciseActions::HOLD};
 
   bool lost = false;
   bool piece_set = false;

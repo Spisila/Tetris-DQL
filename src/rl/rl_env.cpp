@@ -11,36 +11,46 @@ RLEnv::~RLEnv()
 void RLEnv::step()
 {
 
-  switch (game_env.next_action)
+  switch (game_env.next_precise_action)
   {
-  case Actions::MOVE_RIGHT:
-    game_env.getBoard().moveTetromino(MovementDirection::RIGHT);
+    case PreciseActions::ROTATION_0_COLUMN_0 :
+    /* code */
     break;
-  case Actions::MOVE_LEFT:
-    game_env.getBoard().moveTetromino(MovementDirection::LEFT);
-    break;
-  case Actions::SOFT_DROP:
-    game_env.getBoard().moveTetromino(MovementDirection::DOWN);
-    break;
-  case Actions::ROTATE_CLOCKWISE:
-    game_env.getBoard().rotateTetromino(Rotation::CLOCKWISE);
-    break;
-  case Actions::ROTATE_COUNTER_CLOCKWISE:
-    game_env.getBoard().rotateTetromino(Rotation::COUNTER_CLOCKWISE);
-    break;
-  case Actions::HARD_DROP:
-    game_env.hardDrop();
-    break;
-  case Actions::HOLD:
-    if (game_env.hold_used == false)
-    {
-      game_env.hold_used = true;
-      game_env.holdCurrentPiece();
-    }
-    break;
+  
   default:
     break;
   }
+
+  // switch (game_env.next_action)
+  // {
+  // case Actions::MOVE_RIGHT:
+  //   game_env.getBoard().moveTetromino(MovementDirection::RIGHT);
+  //   break;
+  // case Actions::MOVE_LEFT:
+  //   game_env.getBoard().moveTetromino(MovementDirection::LEFT);
+  //   break;
+  // case Actions::SOFT_DROP:
+  //   game_env.getBoard().moveTetromino(MovementDirection::DOWN);
+  //   break;
+  // case Actions::ROTATE_CLOCKWISE:
+  //   game_env.getBoard().rotateTetromino(Rotation::CLOCKWISE);
+  //   break;
+  // case Actions::ROTATE_COUNTER_CLOCKWISE:
+  //   game_env.getBoard().rotateTetromino(Rotation::COUNTER_CLOCKWISE);
+  //   break;
+  // case Actions::HARD_DROP:
+  //   game_env.hardDrop();
+  //   break;
+  // case Actions::HOLD:
+  //   if (game_env.hold_used == false)
+  //   {
+  //     game_env.hold_used = true;
+  //     game_env.holdCurrentPiece();
+  //   }
+  //   break;
+  // default:
+  //   break;
+  // }
 }
 
 void RLEnv::reset()

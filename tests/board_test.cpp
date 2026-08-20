@@ -197,7 +197,7 @@ TEST(BoardTests, chechTouchedFloor_invalidPositions)
     EXPECT_TRUE(b.checkTouchedFloor(out_of_bounds_pos));
 }
 
-TEST(BoardTests, clearLines_noLinesCleared)
+TEST(BoardTests, clearLines_LinesCleared)
 {
 
     Board b{};

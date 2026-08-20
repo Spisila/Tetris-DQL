@@ -52,6 +52,31 @@ const std::array<Position, 4> Tetromino::getAllPositions() const
   return pieces_positions;
 }
 
+int Tetromino::getCurrentRotation() const
+{
+
+  if (getCurrentPieceType() % 4 == 0)
+  {
+    return 0; // No rotation
+  }
+  else if (getCurrentPieceType() % 4 == 1)
+  {
+    return 1; // Rotation 1
+  }
+  else if (getCurrentPieceType() % 4 == 2)
+  {
+    return 2; // Rotation 2
+  }
+  else if (getCurrentPieceType() % 4 == 3)
+  {
+    return 3; // Rotation 3
+  }
+  else
+  {
+    return -1;
+  }
+}
+
 void Tetromino::setTetrominoType(PieceType new_type)
 {
   current_piece_type = new_type;
@@ -87,7 +112,8 @@ PieceType Tetromino::changeTetrominoeRotation(Rotation rot)
     general_index = 20;
   else if (current_index >= 24 && current_index < 28)
     general_index = 24;
-  else {
+  else
+  {
     general_index = 0;
   }
 

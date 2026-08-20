@@ -12,14 +12,13 @@ constexpr int BOARD_SIZE_Y = 24;
 class Board
 {
 private:
-
   std::array<std::array<CellState, BOARD_SIZE_Y>, BOARD_SIZE_X> board;
   Tetromino tetromino{};
 
   // TODO: make spawn positions a single position for the pivot
   // TODO: make spawn position scale with board size
   std::array<Position, 4> spawn_positions = {
-      Position(5, 1),
+      Position(5, 2),
       Position(0, 0),
       Position(0, 0),
       Position(0, 0)};
@@ -40,14 +39,18 @@ public:
   Tetromino &getBoardTetromino();
   const Tetromino &getBoardTetromino() const;
 
-  //Setters
+  // Setters
 
   void setTetrominoCellsStates(CellState state, std::array<Position, 4> positions);
 
-  //Methods
-    
+  // Methods
+
   bool moveTetromino(MovementDirection dir);
+  void moveTetrominoToColumn(int column);
   bool rotateTetromino(Rotation rot);
+  void rotateTetrominoToRotation(int rotation);
+
+  void moveTetrominoToColumnWithRotation(int column, int rotation);
 
   bool setPiece(PieceType new_piece);
 

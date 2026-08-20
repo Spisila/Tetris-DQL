@@ -1,6 +1,7 @@
 #include <board.hpp>
 #include <shared.hpp>
 #include <iostream>
+#include <cassert>
 
 Board::Board(/* args */)
 {
@@ -160,6 +161,39 @@ bool Board::moveTetromino(MovementDirection dir)
     return true;
 }
 
+void Board::moveTetrominoToColumn(int column)
+{
+
+    assert(column > -1 && "Cannot move tetromino outside board");
+    assert(column < BOARD_SIZE_X && "Cannot move tetromino outside board");
+
+    int spawn_x_position = spawn_positions.at(0).x;
+
+    if (column == spawn_x_position)
+    {
+        return;
+    }
+
+    if (column < spawn_x_position)
+    {
+
+        for (int i = 0; i < spawn_x_position - column; i++)
+        {
+            moveTetromino(MovementDirection::LEFT);
+        }
+        return;
+    }
+
+    if (column > spawn_x_position)
+    {
+        for (int i = 0; i < spawn_x_position + (column - spawn_x_position); i++)
+        {
+            moveTetromino(MovementDirection::RIGHT);
+        }
+        return;
+    }
+}
+
 bool Board::rotateTetromino(Rotation rot)
 {
 
@@ -181,7 +215,29 @@ bool Board::rotateTetromino(Rotation rot)
     return true;
 }
 
-// TODO: Refactor this
+void Board::rotateTetrominoToRotation(int rotation)
+{
+
+    assert(rotation > 0 && "Rotation must be between 0 and 3");
+    assert(rotation < 4 && "Rotation must be between 0 and 3");
+
+    int fail_counter = 0;
+
+    while (getBoardTetromino().getCurrentRotation() != 3 && fail_counter <= 10)
+    {
+        rotateTetromino(Rotation::CLOCKWISE);
+        fail_counter++;
+    }
+
+    assert(fail_counter < 10 && "Failed to rotate piece to rotation");
+}
+
+void Board::moveTetrominoToColumnWithRotation(int column, int rotation)
+{
+    rotateTetrominoToRotation(rotation);
+    moveTetrominoToColumn(column);
+}
+
 bool Board::setPiece(PieceType new_piece)
 {
 

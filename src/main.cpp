@@ -12,7 +12,6 @@
 #include <game.hpp>
 #include <game_renderer.hpp>
 
-
 int main()
 {
 
@@ -28,6 +27,16 @@ int main()
   {
     renderer.drawLoop();
     // main_game.tickGravity();
+
+    if (IsKeyPressed(KEY_E))
+    {
+      board.moveTetrominoToColumnWithRotation(9, 3);
+    }
+
+    if (IsKeyPressed(KEY_Q))
+    {
+      board.moveTetrominoToColumnWithRotation(0, 3);
+    }
 
     if (IsKeyPressed(KEY_LEFT))
     {
@@ -49,6 +58,7 @@ int main()
     else if (IsKeyPressed(KEY_X))
     {
       board.rotateTetromino(Rotation::CLOCKWISE);
+      std::cout << board.getBoardTetromino().getCurrentRotation() << std::endl;
     }
     else if (IsKeyPressed(KEY_A))
     {
@@ -69,7 +79,6 @@ int main()
     int cleared_lines = main_game.getBoard().clearLines();
 
     main_game.increaseScore(cleared_lines);
-
   }
 
   CloseWindow();
