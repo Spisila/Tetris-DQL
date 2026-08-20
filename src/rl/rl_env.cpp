@@ -13,10 +13,185 @@ void RLEnv::step()
 
   switch (game_env.next_precise_action)
   {
-    case PreciseActions::ROTATION_0_COLUMN_0 :
-    /* code */
+  case PreciseActions::ROTATION_0_COLUMN_0:
+    game_env.getBoard().moveTetrominoToColumnWithRotation(0, 0);
+    game_env.hardDrop();
     break;
-  
+  case PreciseActions::ROTATION_1_COLUMN_0:
+    game_env.getBoard().moveTetrominoToColumnWithRotation(0, 1);
+    game_env.hardDrop();
+    break;
+  case PreciseActions::ROTATION_2_COLUMN_0:
+    game_env.getBoard().moveTetrominoToColumnWithRotation(0, 2);
+    game_env.hardDrop();
+    break;
+  case PreciseActions::ROTATION_3_COLUMN_0:
+    game_env.getBoard().moveTetrominoToColumnWithRotation(0, 3);
+    game_env.hardDrop();
+    break;
+
+  case PreciseActions::ROTATION_0_COLUMN_1:
+    game_env.getBoard().moveTetrominoToColumnWithRotation(1, 0);
+    game_env.hardDrop();
+    break;
+  case PreciseActions::ROTATION_1_COLUMN_1:
+    game_env.getBoard().moveTetrominoToColumnWithRotation(1, 1);
+    game_env.hardDrop();
+    break;
+  case PreciseActions::ROTATION_2_COLUMN_1:
+    game_env.getBoard().moveTetrominoToColumnWithRotation(1, 2);
+    game_env.hardDrop();
+    break;
+  case PreciseActions::ROTATION_3_COLUMN_1:
+    game_env.getBoard().moveTetrominoToColumnWithRotation(1, 3);
+    game_env.hardDrop();
+    break;
+
+  case PreciseActions::ROTATION_0_COLUMN_2:
+    game_env.getBoard().moveTetrominoToColumnWithRotation(2, 0);
+    game_env.hardDrop();
+    break;
+  case PreciseActions::ROTATION_1_COLUMN_2:
+    game_env.getBoard().moveTetrominoToColumnWithRotation(2, 1);
+    game_env.hardDrop();
+    break;
+  case PreciseActions::ROTATION_2_COLUMN_2:
+    game_env.getBoard().moveTetrominoToColumnWithRotation(2, 2);
+    game_env.hardDrop();
+    break;
+  case PreciseActions::ROTATION_3_COLUMN_2:
+    game_env.getBoard().moveTetrominoToColumnWithRotation(2, 3);
+    game_env.hardDrop();
+    break;
+
+  case PreciseActions::ROTATION_0_COLUMN_3:
+    game_env.getBoard().moveTetrominoToColumnWithRotation(3, 0);
+    game_env.hardDrop();
+    break;
+  case PreciseActions::ROTATION_1_COLUMN_3:
+    game_env.getBoard().moveTetrominoToColumnWithRotation(3, 1);
+    game_env.hardDrop();
+    break;
+  case PreciseActions::ROTATION_2_COLUMN_3:
+    game_env.getBoard().moveTetrominoToColumnWithRotation(3, 2);
+    game_env.hardDrop();
+    break;
+  case PreciseActions::ROTATION_3_COLUMN_3:
+    game_env.getBoard().moveTetrominoToColumnWithRotation(3, 3);
+    game_env.hardDrop();
+    break;
+
+  case PreciseActions::ROTATION_0_COLUMN_4:
+    game_env.getBoard().moveTetrominoToColumnWithRotation(4, 0);
+    game_env.hardDrop();
+    break;
+  case PreciseActions::ROTATION_1_COLUMN_4:
+    game_env.getBoard().moveTetrominoToColumnWithRotation(4, 1);
+    game_env.hardDrop();
+    break;
+  case PreciseActions::ROTATION_2_COLUMN_4:
+    game_env.getBoard().moveTetrominoToColumnWithRotation(4, 2);
+    game_env.hardDrop();
+    break;
+  case PreciseActions::ROTATION_3_COLUMN_4:
+    game_env.getBoard().moveTetrominoToColumnWithRotation(4, 3);
+    game_env.hardDrop();
+    break;
+
+  case PreciseActions::ROTATION_0_COLUMN_5:
+    game_env.getBoard().moveTetrominoToColumnWithRotation(5, 0);
+    game_env.hardDrop();
+    break;
+  case PreciseActions::ROTATION_1_COLUMN_5:
+    game_env.getBoard().moveTetrominoToColumnWithRotation(5, 1);
+    game_env.hardDrop();
+    break;
+  case PreciseActions::ROTATION_2_COLUMN_5:
+    game_env.getBoard().moveTetrominoToColumnWithRotation(5, 2);
+    game_env.hardDrop();
+    break;
+  case PreciseActions::ROTATION_3_COLUMN_5:
+    game_env.getBoard().moveTetrominoToColumnWithRotation(5, 3);
+    game_env.hardDrop();
+    break;
+
+  case PreciseActions::ROTATION_0_COLUMN_6:
+    game_env.getBoard().moveTetrominoToColumnWithRotation(6, 0);
+    game_env.hardDrop();
+    break;
+  case PreciseActions::ROTATION_1_COLUMN_6:
+    game_env.getBoard().moveTetrominoToColumnWithRotation(6, 1);
+    game_env.hardDrop();
+    break;
+  case PreciseActions::ROTATION_2_COLUMN_6:
+    game_env.getBoard().moveTetrominoToColumnWithRotation(6, 2);
+    game_env.hardDrop();
+    break;
+  case PreciseActions::ROTATION_3_COLUMN_6:
+    game_env.getBoard().moveTetrominoToColumnWithRotation(6, 3);
+    game_env.hardDrop();
+    break;
+
+  case PreciseActions::ROTATION_0_COLUMN_7:
+    game_env.getBoard().moveTetrominoToColumnWithRotation(7, 0);
+    game_env.hardDrop();
+    break;
+  case PreciseActions::ROTATION_1_COLUMN_7:
+    game_env.getBoard().moveTetrominoToColumnWithRotation(7, 1);
+    game_env.hardDrop();
+    break;
+  case PreciseActions::ROTATION_2_COLUMN_7:
+    game_env.getBoard().moveTetrominoToColumnWithRotation(7, 2);
+    game_env.hardDrop();
+    break;
+  case PreciseActions::ROTATION_3_COLUMN_7:
+    game_env.getBoard().moveTetrominoToColumnWithRotation(7, 3);
+    game_env.hardDrop();
+    break;
+
+  case PreciseActions::ROTATION_0_COLUMN_8:
+    game_env.getBoard().moveTetrominoToColumnWithRotation(8, 0);
+    game_env.hardDrop();
+    break;
+  case PreciseActions::ROTATION_1_COLUMN_8:
+    game_env.getBoard().moveTetrominoToColumnWithRotation(8, 1);
+    game_env.hardDrop();
+    break;
+  case PreciseActions::ROTATION_2_COLUMN_8:
+    game_env.getBoard().moveTetrominoToColumnWithRotation(8, 2);
+    game_env.hardDrop();
+    break;
+  case PreciseActions::ROTATION_3_COLUMN_8:
+    game_env.getBoard().moveTetrominoToColumnWithRotation(8, 3);
+    game_env.hardDrop();
+    break;
+
+  case PreciseActions::ROTATION_0_COLUMN_9:
+    game_env.getBoard().moveTetrominoToColumnWithRotation(9, 0);
+    game_env.hardDrop();
+    break;
+  case PreciseActions::ROTATION_1_COLUMN_9:
+    game_env.getBoard().moveTetrominoToColumnWithRotation(9, 1);
+    game_env.hardDrop();
+    break;
+  case PreciseActions::ROTATION_2_COLUMN_9:
+    game_env.getBoard().moveTetrominoToColumnWithRotation(9, 2);
+    game_env.hardDrop();
+    break;
+  case PreciseActions::ROTATION_3_COLUMN_9:
+    game_env.getBoard().moveTetrominoToColumnWithRotation(9, 3);
+    game_env.hardDrop();
+    break;
+
+  case PreciseActions::HOLD:
+    if (game_env.hold_used == false)
+    {
+      game_env.hold_used = true;
+      game_env.holdCurrentPiece();
+    }
+    else
+    break;
+
   default:
     break;
   }

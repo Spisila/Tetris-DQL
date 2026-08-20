@@ -44,7 +44,7 @@ public:
 
   void threadLoop(size_t thread_segment_index);
 
-  std::vector<StepData> stepAll(std::vector<Actions> _actions);
+  std::vector<StepData> stepAll(std::vector<PreciseActions> _actions);
   void stepThis(int index, Actions _action);
 
   void resetAll();

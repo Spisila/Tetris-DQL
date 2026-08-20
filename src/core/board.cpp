@@ -218,16 +218,19 @@ bool Board::rotateTetromino(Rotation rot)
 void Board::rotateTetrominoToRotation(int rotation)
 {
 
-    assert(rotation > 0 && "Rotation must be between 0 and 3");
+    assert(rotation > -1 && "Rotation must be between 0 and 3");
     assert(rotation < 4 && "Rotation must be between 0 and 3");
 
     int fail_counter = 0;
 
-    while (getBoardTetromino().getCurrentRotation() != 3 && fail_counter <= 10)
-    {
+    // if (rotation == 0) {
+    //     return;
+    // }
+
+    for (int i = 0; i < rotation; i++) {
         rotateTetromino(Rotation::CLOCKWISE);
-        fail_counter++;
     }
+
 
     assert(fail_counter < 10 && "Failed to rotate piece to rotation");
 }

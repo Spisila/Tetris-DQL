@@ -89,7 +89,7 @@ void MultiGame::threadLoop(size_t thread_segment_index)
   }
 }
 
-std::vector<StepData> MultiGame::stepAll(std::vector<Actions> _actions)
+std::vector<StepData> MultiGame::stepAll(std::vector<PreciseActions> _actions)
 {
 
   py::gil_scoped_release release;
@@ -97,7 +97,7 @@ std::vector<StepData> MultiGame::stepAll(std::vector<Actions> _actions)
 
   for (int i = 0; i < games.size(); i++)
   {
-    games[i].getGameEnv().next_action = _actions[i];
+    games[i].getGameEnv().next_precise_action = _actions[i];
   }
 
   barrier.arrive_and_wait();

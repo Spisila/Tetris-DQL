@@ -124,10 +124,10 @@ def back_propagation(samples) :
 
 print("Started")
 
-games = Tetris_AGENT.MultiGame(128)
+games = Tetris_AGENT.MultiGame(64)
 
-model = DQN(input_dim=39, output_dim=7)
-target_model = DQN(input_dim=39, output_dim=7)
+model = DQN(input_dim=39, output_dim=41)
+target_model = DQN(input_dim=39, output_dim=41)
 
 optimizer = optim.Adam(model.parameters(), lr=0.001)
 criterion = nn.MSELoss()
@@ -204,13 +204,13 @@ while True:
         if random.random() > epsilon :
             action_indexes.append(torch.argmax(q_values[i]).item())
         else :
-            action_indexes.append(random.randint(0,6))
+            action_indexes.append(random.randint(0,40))
 
     action_enums = []
 
     for i in range(len(action_indexes)) :
 
-        action_enums.append(Tetris_AGENT.Actions(action_indexes[i]))
+        action_enums.append(Tetris_AGENT.PreciseActions(action_indexes[i]))
 
     step_data = games.stepAll(action_enums)
 
