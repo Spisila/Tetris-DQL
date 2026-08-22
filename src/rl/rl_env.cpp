@@ -13,40 +13,50 @@ void RLEnv::takePreciseAction(PreciseActions action)
 {
   int precise_action_num = static_cast<int>(action);
 
-  
-  if (precise_action_num <= 39) {
+  if (precise_action_num <= 39)
+  {
     int rotation = precise_action_num % 4;
     int column = precise_action_num / 4;
 
     game_env.getBoard().moveTetrominoToColumnWithRotation(column, rotation);
     game_env.hardDrop();
   }
-  else {
+  else
+  {
     if (game_env.hold_used == false)
     {
       game_env.hold_used = true;
       game_env.holdCurrentPiece();
     }
   }
-
 }
 
-void RLEnv::testStep()
+auto RLEnv::testStep()
 {
 
   int actions_start = static_cast<int>(PreciseActions::ROTATION_0_COLUMN_0);
   int actions_end = static_cast<int>(PreciseActions::HOLD);
 
+  std::array<std::vector<int>, 40> state_attempts;
+
   for (int i = actions_start; i < actions_end; i++)
   {
+
+    auto precise_action_i = static_cast<PreciseActions>(i);
+
+    takePreciseAction(precise_action_i);
+
+    state_attempts.at(i) = game_env.getGameState();
+
+    game_env.getBoard().setTetrominoCellsStates(CellState::EMPTY, game_env.getLastPiecePlacedPositions());
   }
+
+  return state_attempts;
 }
 
 void RLEnv::step()
 {
-
   takePreciseAction(game_env.next_precise_action);
-
 }
 
 void RLEnv::reset()
@@ -107,6 +117,7 @@ int RLEnv::getGameEnvID() const
   return game_env.getId();
 }
 
+// TODO: Change vector into
 std::vector<int> RLEnv::getGameState()
 {
 

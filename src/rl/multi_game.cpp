@@ -78,6 +78,7 @@ void MultiGame::threadLoop(size_t thread_segment_index)
       break;
     }
 
+    //TODO: Move this outside the loop maybe?
     auto thread_segment = segments[thread_segment_index];
 
     for (auto &game : thread_segment)

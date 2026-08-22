@@ -23,7 +23,7 @@ public:
 
   void takePreciseAction(PreciseActions action);
 
-  void testStep();
+  auto testStep();
 
   void step();
   void reset();
