@@ -5,52 +5,20 @@ import time
 
 import random
 import numpy as np
+
 from collections import deque
+
 import torch
 import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
 
+from python.DQN import DQN
 
 agent_path = os.path.abspath("./Release")
 sys.path.append(agent_path)
 
 from Debug import Tetris_AGENT
-
-class DQN(nn.Module):
-
-    set_target_counter = 0
-
-    def __init__(self, input_dim, output_dim, target_max):
-
-        self.set_target_max = target_max
-
-        super(DQN, self).__init__()
-        self.net = nn.Sequential(
-            nn.Linear(input_dim, NUM_NEURONS),
-            nn.ReLU(),
-            nn.Linear(NUM_NEURONS, NUM_NEURONS),
-            nn.ReLU(),
-            nn.Linear(NUM_NEURONS, output_dim)
-        )
-
-    def forward(self, x):
-        return self.net(x)
-
-    @classmethod
-    def increase_target_counter(cls) :
-        cls.set_target_counter += 1
-
-    @classmethod
-    def reset_target_counter(cls) :
-        cls.set_target_counter = 0
-
-
-    def check_if_should_set_new_target(self, policy_net, target_net) :
-
-        if DQN.set_target_counter >= self.set_target_max :
-            target_net.load_state_dict(policy_net.state_dict())
-            DQN.reset_target_counter()
 
         
 
@@ -192,8 +160,8 @@ set_target_in_actions = 500
 
 games = Tetris_AGENT.MultiGame(32)
 
-model = DQN(input_dim=39, output_dim=41, target_max=set_target_in_actions)
-target_model = DQN(input_dim=39, output_dim=41, target_max=set_target_in_actions)
+model        = DQN(input_dim=39, output_dim=41, target_max=set_target_in_actions, number_of_neurons=NUM_NEURONS)
+target_model = DQN(input_dim=39, output_dim=41, target_max=set_target_in_actions, number_of_neurons=NUM_NEURONS)
 
 logger = EpisodeLogger(100)
 
@@ -228,7 +196,10 @@ while True:
 
     action_count = 0
 
-    games.render(0)
+    games.render("0")
+
+    if graphics_init == True :
+        games.render("0")
 
     model.check_if_should_set_new_target(policy_net=model, target_net=target_model)
     
@@ -242,8 +213,6 @@ while True:
     #         games.initGraphics()
     #     watch_counter = 0
 
-    if graphics_init == True :
-        games.render(0)
 
     state_t = torch.FloatTensor(state)
     q_values = model(state_t)
