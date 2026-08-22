@@ -1,8 +1,13 @@
 .git
 .vscode
 .venv
-.pyc
+
 
 /Release
 /build
 /bin
+
+__pycache__/
+*.pyc
+*.pyo
+*.pyd

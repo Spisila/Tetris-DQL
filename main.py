@@ -3,17 +3,18 @@ import os
 import sys
 import time
 
-import random
+
 import numpy as np
 
-from collections import deque
+import random
 
 import torch
 import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
 
-from python.DQN import DQN
+from python.DQN           import DQN
+from python.replay_buffer import ReplayBuffer
 
 agent_path = os.path.abspath("./Release")
 sys.path.append(agent_path)
@@ -22,18 +23,6 @@ from Debug import Tetris_AGENT
 
         
 
-class ReplayBuffer:
-    def __init__(self, capacity=50000):
-        self.buffer = deque(maxlen=capacity)
-        
-    def push(self, state, action, reward, next_state, done):
-        self.buffer.append((state, action, reward, next_state, done))
-        
-    def sample(self, batch_size):
-        return random.sample(self.buffer, batch_size)
-    
-    def size(self) :
-        return len(self.buffer)
 
 class EpisodeLogger:
 
