@@ -57,7 +57,7 @@ const Board &Game::getBoard() const
     return game_board;
 }
 
-auto Game::getLastPiecePlacedPositions() const
+std::array<Position, 4> Game::getLastPiecePlacedPositions() const
 {
     return last_piece_placed_positions;
 }

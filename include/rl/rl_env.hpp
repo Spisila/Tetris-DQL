@@ -20,6 +20,7 @@ public:
 
   Game &getGameEnv();
   int getGameEnvID() const;
+  std::vector<int> getGameState();
 
   void takePreciseAction(PreciseActions action);
 
@@ -29,6 +30,4 @@ public:
   void reset();
 
   StepData calculateReward();
-
-  std::vector<int> getGameState();
 };

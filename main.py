@@ -17,10 +17,14 @@ sys.path.append(agent_path)
 
 from Debug import Tetris_AGENT
 
-NUM_NEURONS = 128
-
 class DQN(nn.Module):
-    def __init__(self, input_dim, output_dim):
+
+    set_target_counter = 0
+
+    def __init__(self, input_dim, output_dim, target_max):
+
+        self.set_target_max = target_max
+
         super(DQN, self).__init__()
         self.net = nn.Sequential(
             nn.Linear(input_dim, NUM_NEURONS),
@@ -29,8 +33,30 @@ class DQN(nn.Module):
             nn.ReLU(),
             nn.Linear(NUM_NEURONS, output_dim)
         )
+
     def forward(self, x):
         return self.net(x)
+
+    @classmethod
+    def increase_target_counter(cls) :
+        cls.set_target_counter += 1
+
+    @classmethod
+    def reset_target_counter(cls) :
+        cls.set_target_counter = 0
+
+
+    def check_if_should_set_new_target(self, policy_net, target_net) :
+
+        if DQN.set_target_counter >= self.set_target_max :
+            target_net.load_state_dict(policy_net.state_dict())
+            DQN.reset_target_counter()
+
+        
+        
+
+    
+    
 
 class ReplayBuffer:
     def __init__(self, capacity=50000):
@@ -44,7 +70,6 @@ class ReplayBuffer:
     
     def size(self) :
         return len(self.buffer)
-
 
 def sigmoid_scale(x, k=5.0):
     return (2.0 / (1.0 + np.exp(-x / k))) - 1.0
@@ -124,36 +149,38 @@ def back_propagation(samples) :
 
 print("Started")
 
+
+NUM_NEURONS = 128
+set_target_in_actions = 500
+
 games = Tetris_AGENT.MultiGame(32)
 
-model = DQN(input_dim=39, output_dim=41)
-target_model = DQN(input_dim=39, output_dim=41)
+model = DQN(input_dim=39, output_dim=41, target_max=set_target_in_actions)
+target_model = DQN(input_dim=39, output_dim=41, target_max=set_target_in_actions)
 
 optimizer = optim.Adam(model.parameters(), lr=0.001)
 criterion = nn.MSELoss()
 
 buffer = ReplayBuffer()
 
+games.resetAll()
+state = np.array(get_all_current_state(games), dtype=np.float32)
+
+done = False
 epsilon = 1
 
+action_count = 0
 sum_action_count = 0
 
-watch_generation_counter = 20
+episode = 0
+episode_log_counter = 0
 
 pieces_placed = 0
 pieces_placed_counter = 0
 
-games.resetAll()
-done = False
-
-state = np.array(get_all_current_state(games), dtype=np.float32)
-
-action_count = 0
-
-generation = 0
-generation_log_counter = 0
-
 watch_counter = 0
+watch_episode_counter = 20
+
 graphics_init = False
 
 finished_watch_counter = 0
@@ -165,18 +192,13 @@ while True:
 
     action_count = 0
 
-    games.render(str(generation))
+    games.render(str(episode))
 
-    # print("Action count = " + str(action_count))
-    # print("Generation   = " + str(generation_log_counter))
+    model.check_if_should_set_new_target(policy_net=model, target_net=target_model)
 
-    if pieces_placed_counter >= 500 :
-        target_model.load_state_dict(model.state_dict())
-        pieces_placed_counter = 0
-
-    if generation_log_counter >= 500 and generation > 0:
-        print("GENERATION = " + str(generation) + " | PIECES PLACED = " + str(pieces_placed) + " | LINES = " + str(games.getLinesCleared()))
-        generation_log_counter = 0
+    if episode_log_counter >= 500 and episode > 0:
+        print("EPISODE = " + str(episode) + " | PIECES PLACED = " + str(pieces_placed) + " | LINES = " + str(games.getLinesCleared()))
+        episode_log_counter = 0
         sum_action_count = 0
         watch_counter += 1
     
@@ -187,7 +209,7 @@ while True:
     #     watch_counter = 0
 
     if graphics_init == True :
-        games.render(str(generation))
+        games.render(str(episode))
 
     state_t = torch.FloatTensor(state)
     q_values = model(state_t)
@@ -219,6 +241,8 @@ while True:
         step_i = step_data[i]
 
         if step_i.piece_placed == True :
+
+            model.increase_target_counter()
             action_count += 1
 
             pieces_placed += 1
@@ -229,8 +253,8 @@ while True:
 
         if step_i.lost == True :
             games.resetThis(i)
-            generation += 1
-            generation_log_counter += 1
+            episode += 1
+            episode_log_counter += 1
             
     for i in range(len(state)) :
         

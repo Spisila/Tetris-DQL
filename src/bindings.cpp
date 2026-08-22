@@ -86,7 +86,6 @@ PYBIND11_MODULE(Tetris_AGENT, m)
         .def("render", &MultiGame::render, "Renders the board")
         .def("closeGraphics", &MultiGame::closeGraphics, "Closes window")
 
-
         .def("stepAll", &MultiGame::stepAll, "Runs a step on all the enviroments")
 
         .def("resetAll", &MultiGame::resetAll, "Restarts all of the environments")

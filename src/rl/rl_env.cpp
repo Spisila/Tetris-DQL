@@ -46,7 +46,7 @@ auto RLEnv::testStep()
 
     takePreciseAction(precise_action_i);
 
-    state_attempts.at(i) = game_env.getGameState();
+    state_attempts.at(i) = getGameState();
 
     game_env.getBoard().setTetrominoCellsStates(CellState::EMPTY, game_env.getLastPiecePlacedPositions());
   }

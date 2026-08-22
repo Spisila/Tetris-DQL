@@ -71,7 +71,7 @@ public:
   Board &getBoard();
   const Board &getBoard() const;
 
-  auto getLastPiecePlacedPositions() const;
+  std::array<Position, 4> getLastPiecePlacedPositions() const;
 
   void increaseScore(int lines);
   void resetScore();
