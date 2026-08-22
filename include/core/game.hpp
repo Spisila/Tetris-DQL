@@ -37,6 +37,12 @@ private:
 
   int score = 0;
 
+  std::array<Position, 4> last_piece_placed_positions{
+      Position(0, 0),
+      Position(0, 0),
+      Position(0, 0),
+      Position(0, 0)};
+
 public:
   Actions next_action{Actions::HOLD};
   PreciseActions next_precise_action{PreciseActions::HOLD};
@@ -65,6 +71,8 @@ public:
   Board &getBoard();
   const Board &getBoard() const;
 
+  auto getLastPiecePlacedPositions() const;
+
   void increaseScore(int lines);
   void resetScore();
 
@@ -81,5 +89,3 @@ public:
 
   ~Game();
 };
-
-

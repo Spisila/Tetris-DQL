@@ -28,16 +28,6 @@ int main()
     renderer.drawLoop();
     // main_game.tickGravity();
 
-    if (IsKeyPressed(KEY_E))
-    {
-      board.moveTetrominoToColumnWithRotation(9, 3);
-    }
-
-    if (IsKeyPressed(KEY_Q))
-    {
-      board.moveTetrominoToColumnWithRotation(0, 3);
-    }
-
     if (IsKeyPressed(KEY_LEFT))
     {
       board.moveTetromino(MovementDirection::LEFT);

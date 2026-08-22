@@ -21,6 +21,10 @@ public:
   Game &getGameEnv();
   int getGameEnvID() const;
 
+  void takePreciseAction(PreciseActions action);
+
+  void testStep();
+
   void step();
   void reset();
 

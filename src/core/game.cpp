@@ -4,6 +4,8 @@
 #include <raylib.h>
 
 #include <iostream>
+#include <algorithm>
+#include <iterator>
 
 /* TODO:
 Implement wall kicks
@@ -53,6 +55,11 @@ Board &Game::getBoard()
 const Board &Game::getBoard() const
 {
     return game_board;
+}
+
+auto Game::getLastPiecePlacedPositions() const
+{
+    return last_piece_placed_positions;
 }
 
 #pragma endregion
@@ -129,6 +136,9 @@ int Game::pieceWasSet()
     auto next_piece_in_queue = static_cast<PieceType>(piece_queue.getPieceQueue().at(0));
 
     game_board.setTetrominoCellsStates(CellState::FILLED, tetromino_positions);
+
+    std::copy(std::begin(tetromino_positions), std::end(tetromino_positions), std::begin(last_piece_placed_positions));
+
     if (!game_board.setPiece(next_piece_in_queue))
     {
         gameLost();

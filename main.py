@@ -124,7 +124,7 @@ def back_propagation(samples) :
 
 print("Started")
 
-games = Tetris_AGENT.MultiGame(64)
+games = Tetris_AGENT.MultiGame(32)
 
 model = DQN(input_dim=39, output_dim=41)
 target_model = DQN(input_dim=39, output_dim=41)
@@ -158,8 +158,6 @@ graphics_init = False
 
 finished_watch_counter = 0
 finished_watch_max = 20
-
-print("Before training loop")
 
 games.initGraphics()
 
