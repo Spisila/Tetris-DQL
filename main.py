@@ -104,15 +104,28 @@ print("Started")
 
 
 NUM_NEURONS = 128
-set_target_in_actions = 500
+NUM_GAMES   = 8
+SET_TARGET_IN_ACTIONS = 500
 
-games = Tetris_AGENT.MultiGame(8)
+LOG_TRAINING_IN_EPISODES = 100
 
-model        = DQN(input_dim=39, output_dim=41, target_max=set_target_in_actions, number_of_neurons=NUM_NEURONS)
-target_model = DQN(input_dim=39, output_dim=41, target_max=set_target_in_actions, number_of_neurons=NUM_NEURONS)
+WATCH_TRANING = True
 
-logger = EpisodeLogger(100)
-watcher = EpisodeWatcher(games=games, watch=True)
+INPUT_DIMENSIONS = 39
+OUTPUT_DIMENSIONS = 41
+
+EPSILON_MIN = 0.05
+EPSILON_REDUCTION = 0.00005
+
+BUFFER_SAMPLE_SIZE = 128
+
+games = Tetris_AGENT.MultiGame(NUM_GAMES)
+
+model        = DQN(input_dim=INPUT_DIMENSIONS, output_dim=OUTPUT_DIMENSIONS, target_max=SET_TARGET_IN_ACTIONS, number_of_neurons=NUM_NEURONS)
+target_model = DQN(input_dim=INPUT_DIMENSIONS, output_dim=OUTPUT_DIMENSIONS, target_max=SET_TARGET_IN_ACTIONS, number_of_neurons=NUM_NEURONS)
+
+logger  = EpisodeLogger(LOG_TRAINING_IN_EPISODES)
+watcher = EpisodeWatcher(games=games, watch=WATCH_TRANING)
 
 optimizer = optim.Adam(model.parameters(), lr=0.001)
 criterion = nn.MSELoss()
@@ -122,7 +135,6 @@ buffer = ReplayBuffer()
 games.resetAll()
 state = np.array(get_all_current_state(games), dtype=np.float32)
 
-done = False
 epsilon = 1
 
 action_count = 0
@@ -139,7 +151,6 @@ while True:
     
     if (logger.check_should_console_log_episodes(pieces_placed=pieces_placed, lines_cleared=games.getLinesCleared())) :
         sum_action_count = 0
-        watch_counter += 1
 
     watcher.check_should_watch_episodes()
 
@@ -173,7 +184,7 @@ while True:
 
         step_i = step_data[i]
 
-        if step_i.piece_placed == True :
+        if step_i.piece_placed :
 
             model.increase_target_counter()
             action_count += 1
@@ -181,10 +192,10 @@ while True:
             pieces_placed += 1
             pieces_placed_counter += 1
             if (buffer.size() > 1000) :
-                experience_samples = buffer.sample(128)
+                experience_samples = buffer.sample(BUFFER_SAMPLE_SIZE)
                 back_propagation(experience_samples)
 
-        if step_i.lost == True :
+        if step_i.lost :
             games.resetThis(i)
             logger.increase_log_counter()
             
@@ -194,5 +205,5 @@ while True:
     
     state = next_state
 
-    if epsilon > 0.05 :
-        epsilon -= 0.00005
+    if epsilon > EPSILON_MIN :
+        epsilon -= EPSILON_REDUCTION
