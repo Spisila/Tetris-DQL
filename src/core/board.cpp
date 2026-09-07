@@ -112,14 +112,14 @@ int Board::getRugosity() const
     return rugosity;
 }
 
-const std::vector<int> Board::getBoardState() const
+const std::array<int, 3> Board::getBoardState() const
 {
 
     int agg_height = getAggregateHeight();
     int holes = getAmountOfHoles();
     int rugosity = getRugosity();
 
-    std::vector<int> data_basic = {agg_height, holes, rugosity};
+    std::array<int, 3> data_basic = {agg_height, holes, rugosity};
 
     return data_basic;
 }

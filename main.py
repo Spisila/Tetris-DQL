@@ -23,7 +23,6 @@ sys.path.append(agent_path)
 
 from Debug import Tetris_AGENT
 
-        
 
 def sigmoid_scale(x, k=5.0):
     return (2.0 / (1.0 + np.exp(-x / k))) - 1.0
@@ -103,7 +102,6 @@ def back_propagation(samples) :
 
 print("Started")
 
-
 NUM_NEURONS = 128
 NUM_GAMES   = 8
 SET_TARGET_IN_ACTIONS = 500
@@ -124,27 +122,23 @@ games = Tetris_AGENT.MultiGame(NUM_GAMES)
 
 model        = DQN(input_dim=INPUT_DIMENSIONS, output_dim=OUTPUT_DIMENSIONS, target_max=SET_TARGET_IN_ACTIONS, number_of_neurons=NUM_NEURONS)
 target_model = DQN(input_dim=INPUT_DIMENSIONS, output_dim=OUTPUT_DIMENSIONS, target_max=SET_TARGET_IN_ACTIONS, number_of_neurons=NUM_NEURONS)
+optimizer    = optim.Adam(model.parameters(), lr=0.001)
+criterion    = nn.MSELoss()
+
+buffer         = ReplayBuffer()
+epsilon_greedy = EpsilonGreedy(output_size=OUTPUT_DIMENSIONS, epsilon_min=EPSILON_MIN, reduction_amount=EPSILON_REDUCTION) 
 
 logger  = EpisodeLogger(LOG_TRAINING_IN_EPISODES)
 watcher = EpisodeWatcher(games=games, watch=WATCH_TRANING)
 
-optimizer = optim.Adam(model.parameters(), lr=0.001)
-criterion = nn.MSELoss()
+action_count     = 0
+sum_action_count = 0
 
-buffer = ReplayBuffer()
+pieces_placed         = 0
+pieces_placed_counter = 0
 
 games.resetAll()
 state = np.array(get_all_current_state(games), dtype=np.float32)
-
-epsilon = 1
-
-action_count = 0
-sum_action_count = 0
-
-pieces_placed = 0
-pieces_placed_counter = 0
-
-epsilon_greedy = EpsilonGreedy(output_size=OUTPUT_DIMENSIONS, epsilon_min=EPSILON_MIN, reduction_amount=EPSILON_REDUCTION) 
 
 while True:
 
@@ -152,7 +146,7 @@ while True:
 
     model.check_if_should_set_new_target(policy_net=model, target_net=target_model)
     
-    if (logger.check_should_console_log_episodes(pieces_placed=pieces_placed, lines_cleared=games.getLinesCleared())) :
+    if logger.check_should_console_log_episodes(pieces_placed=pieces_placed, lines_cleared=games.getLinesCleared()) :
         sum_action_count = 0
 
     watcher.check_should_watch_episodes()
@@ -176,7 +170,6 @@ while True:
     action_enums = []
 
     for i in range(len(action_indexes)) :
-
         action_enums.append(Tetris_AGENT.PreciseActions(action_indexes[i]))
 
     step_data = games.stepAll(action_enums)
@@ -190,10 +183,11 @@ while True:
         if step_i.piece_placed :
 
             model.increase_target_counter()
-            action_count += 1
 
+            action_count += 1
             pieces_placed += 1
             pieces_placed_counter += 1
+
             if (buffer.size() > 1000) :
                 experience_samples = buffer.sample(BUFFER_SAMPLE_SIZE)
                 back_propagation(experience_samples)
@@ -203,7 +197,6 @@ while True:
             logger.increase_log_counter()
             
     for i in range(len(state)) :
-        
         buffer.push(state[i], action_enums[i].value, step_data[i].reward, next_state[i], step_data[i].lost)
     
     state = next_state

@@ -123,7 +123,7 @@ std::vector<int> RLEnv::getGameState()
 
   std::vector<int> state;
 
-  std::vector<int> board_state = game_env.getBoard().getBoardState();
+  std::array<int, 3> board_state = game_env.getBoard().getBoardState();
 
   for (int i : board_state)
   {

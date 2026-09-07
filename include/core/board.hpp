@@ -34,7 +34,7 @@ public:
   int getAggregateHeight() const;
   int getAmountOfHoles() const;
   int getRugosity() const;
-  const std::vector<int> getBoardState() const;
+  const std::array<int, 3> getBoardState() const;
 
   Tetromino &getBoardTetromino();
   const Tetromino &getBoardTetromino() const;
