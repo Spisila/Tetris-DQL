@@ -3,7 +3,6 @@ import os
 import sys
 import time
 
-
 import numpy as np
 
 import random
@@ -13,56 +12,16 @@ import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
 
-from python.DQN           import DQN
-from python.replay_buffer import ReplayBuffer
+from python.DQN            import DQN
+from python.replay_buffer  import ReplayBuffer
+from python.episode_logger import EpisodeLogger
+from python.episode_watcher import EpisodeWatcher
 
 agent_path = os.path.abspath("./Release")
 sys.path.append(agent_path)
 
 from Debug import Tetris_AGENT
 
-        
-
-
-class EpisodeLogger:
-
-    log_counter = 0
-
-    episode_count = 0
-    pieces_placed_sum = 0
-    lines_cleared_sum = 0
-
-    def __init__(self, log_counter_max):
-        self.log_counter_max = log_counter_max
-
-    @classmethod
-    def increase_log_counter(cls) :
-        cls.log_counter += 1
-        cls.episode_count += 1
-
-    @classmethod
-    def reset_log_counter(cls) :
-        cls.log_counter = 0
-
-    @classmethod
-    def console_log_episode(cls, pieces_placed, lines_cleared) :
-
-        cls.pieces_placed_sum += pieces_placed
-        cls.lines_cleared_sum += lines_cleared
-
-        print("EPISODE = "                   + str(cls.episode_count)     + 
-            " | PIECES PLACED = "            + str(cls.pieces_placed_sum) + 
-            " | PIECES PLACED IN EPISODE = " + str(pieces_placed) +
-            " | LINES = "                    + str(cls.lines_cleared_sum) +
-            " | LINES CLEARED IN EPISODE = " + str(lines_cleared))
-        cls.reset_log_counter()
-
-    def check_should_console_log_episodes(self, pieces_placed, lines_cleared) :
-
-        if EpisodeLogger.log_counter >= self.log_counter_max :
-            self.console_log_episode(pieces_placed=pieces_placed, lines_cleared=lines_cleared)
-            return True
-        return False
         
 
 def sigmoid_scale(x, k=5.0):
@@ -147,12 +106,13 @@ print("Started")
 NUM_NEURONS = 128
 set_target_in_actions = 500
 
-games = Tetris_AGENT.MultiGame(32)
+games = Tetris_AGENT.MultiGame(8)
 
 model        = DQN(input_dim=39, output_dim=41, target_max=set_target_in_actions, number_of_neurons=NUM_NEURONS)
 target_model = DQN(input_dim=39, output_dim=41, target_max=set_target_in_actions, number_of_neurons=NUM_NEURONS)
 
 logger = EpisodeLogger(100)
+watcher = EpisodeWatcher(games=games, watch=True)
 
 optimizer = optim.Adam(model.parameters(), lr=0.001)
 criterion = nn.MSELoss()
@@ -171,24 +131,9 @@ sum_action_count = 0
 pieces_placed = 0
 pieces_placed_counter = 0
 
-watch_counter = 0
-watch_episode_counter = 20
-
-graphics_init = False
-
-finished_watch_counter = 0
-finished_watch_max = 20
-
-games.initGraphics()
-
 while True:
 
     action_count = 0
-
-    games.render("0")
-
-    if graphics_init == True :
-        games.render("0")
 
     model.check_if_should_set_new_target(policy_net=model, target_net=target_model)
     
@@ -196,11 +141,7 @@ while True:
         sum_action_count = 0
         watch_counter += 1
 
-    # if watch_counter >= 10 :
-    #     if graphics_init == False :
-    #         graphics_init = True
-    #         games.initGraphics()
-    #     watch_counter = 0
+    watcher.check_should_watch_episodes()
 
 
     state_t = torch.FloatTensor(state)
