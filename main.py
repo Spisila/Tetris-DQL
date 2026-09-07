@@ -16,6 +16,7 @@ from python.DQN            import DQN
 from python.replay_buffer  import ReplayBuffer
 from python.episode_logger import EpisodeLogger
 from python.episode_watcher import EpisodeWatcher
+from python.epsilon_greedy import EpsilonGreedy
 
 agent_path = os.path.abspath("./Release")
 sys.path.append(agent_path)
@@ -143,6 +144,8 @@ sum_action_count = 0
 pieces_placed = 0
 pieces_placed_counter = 0
 
+epsilon_greedy = EpsilonGreedy(output_size=OUTPUT_DIMENSIONS, epsilon_min=EPSILON_MIN, reduction_amount=EPSILON_REDUCTION) 
+
 while True:
 
     action_count = 0
@@ -154,21 +157,21 @@ while True:
 
     watcher.check_should_watch_episodes()
 
-
     state_t = torch.FloatTensor(state)
     q_values = model(state_t)
 
-
     action_count = len(q_values)
-
     action_indexes = []
 
     for i in range(action_count) :
 
-        if random.random() > epsilon :
+        greedy = epsilon_greedy.greedy()
+
+        if greedy == -1 :
             action_indexes.append(torch.argmax(q_values[i]).item())
         else :
-            action_indexes.append(random.randint(0,40))
+            action_indexes.append(greedy)
+
 
     action_enums = []
 
@@ -205,5 +208,4 @@ while True:
     
     state = next_state
 
-    if epsilon > EPSILON_MIN :
-        epsilon -= EPSILON_REDUCTION
+    epsilon_greedy.reduce_epsilon()
