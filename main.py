@@ -30,7 +30,6 @@ def sigmoid_scale(x, k=5.0):
 def get_all_current_state(games: Tetris_AGENT.MultiGame) :
     
     state_data = games.getStates()
-
     scaled_states = []
 
     for i in range(len(state_data)) :

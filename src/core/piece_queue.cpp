@@ -13,7 +13,6 @@ PieceQueue::~PieceQueue()
 
 size_t PieceQueue::getQueueSize() const
 {
-
     return queue_size;
 }
 

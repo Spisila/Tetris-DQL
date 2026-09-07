@@ -37,7 +37,7 @@ private:
 
 
 public:
-  std::vector<std::vector<int>> states_cache;
+  std::vector<std::array<int, 9>> states_cache;
 
   MultiGame(size_t parallel_game_count);
   ~MultiGame();
@@ -56,7 +56,7 @@ public:
   int getSumScore();
   int getLinesCleared();
 
-  std::vector<std::vector<int>> getStates();
+  std::vector<std::array<int, 9>> getStates();
 
   void initGraphics();
   void render(std::string &generation_counter);

@@ -20,7 +20,7 @@ public:
 
   Game &getGameEnv();
   int getGameEnvID() const;
-  std::vector<int> getGameState();
+  std::array<int, 9> getGameState();
 
   void takePreciseAction(PreciseActions action);
 

@@ -156,7 +156,7 @@ int MultiGame::getLinesCleared()
   return sum;
 }
 
-std::vector<std::vector<int>> MultiGame::getStates()
+std::vector<std::array<int, 9>> MultiGame::getStates()
 {
   return states_cache;
 }

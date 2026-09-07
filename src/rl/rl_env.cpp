@@ -37,7 +37,7 @@ auto RLEnv::testStep()
   int actions_start = static_cast<int>(PreciseActions::ROTATION_0_COLUMN_0);
   int actions_end = static_cast<int>(PreciseActions::HOLD);
 
-  std::array<std::vector<int>, 40> state_attempts;
+  std::array<std::array<int, 9>, 40> state_attempts;
 
   for (int i = actions_start; i < actions_end; i++)
   {
@@ -117,30 +117,29 @@ int RLEnv::getGameEnvID() const
   return game_env.getId();
 }
 
-// TODO: Change vector into
-std::vector<int> RLEnv::getGameState()
+std::array<int, 9> RLEnv::getGameState()
 {
 
-  std::vector<int> state;
+  std::array<int, 9> state = {};
 
   std::array<int, 3> board_state = game_env.getBoard().getBoardState();
 
-  for (int i : board_state)
+  for (int i = 0; i < board_state.size(); i++)
   {
-    state.push_back(i);
+    state[i] = board_state[i];
   }
 
   const Tetromino &current_tetromino = game_env.getBoard().getBoardTetromino();
   const int current_piece_type = current_tetromino.getCurrentPieceType();
 
-  state.push_back(current_piece_type);
+  state[3] = formatPiece(current_piece_type);
 
-  const PieceQueue &c_q = game_env.getPieceQueue();
-  const auto &p_q = c_q.getPieceQueue();
+  const PieceQueue &game_queue = game_env.getPieceQueue();
+  const auto &piece_queue = game_queue.getPieceQueue();
 
-  for (int piece : p_q)
+  for (int i = 0; i < piece_queue.size(); i++)
   {
-    state.push_back(formatPiece(piece));
+    state[i + 4] = formatPiece(piece_queue[i]);
   }
 
   return state;
