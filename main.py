@@ -5,8 +5,6 @@ import time
 
 import numpy as np
 
-import random
-
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -165,18 +163,24 @@ pieces_placed_counter = 0
 games.resetAll()
 state = np.array(get_all_current_state(games), dtype=np.float32)
 
+logger.start_timer()
+
 while True:
 
     action_count = 0
 
     model.check_if_should_set_new_target(policy_net=model, target_net=target_model)
     
-    if logger.check_should_console_log_episodes(pieces_placed=pieces_placed, lines_cleared=games.getLinesCleared(), action_selection_counts=action_selection_counts) :
+    if logger.check_should_console_log_episodes(
+        pieces_placed=pieces_placed, 
+        lines_cleared=games.getLinesCleared(), 
+        action_selection_counts=action_selection_counts,
+        epsilon=epsilon_greedy.epsilon
+        ) :
         sum_action_count = 0
     watcher.check_should_watch_episodes()
 
     look_ahead = games.lookAheadAll()
-
     test_qs = []
 
     for i in range(len(look_ahead)) :

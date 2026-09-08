@@ -1,6 +1,7 @@
 
 import os
 import csv
+import time
 
 class EpisodeLogger:
 
@@ -9,6 +10,8 @@ class EpisodeLogger:
     episode_count = 0
     pieces_placed_sum = 0
     lines_cleared_sum = 0
+
+    interval_timer = 0
 
     def __init__(self, log_counter_max, log_path):
         self.log_counter_max = log_counter_max
@@ -20,7 +23,27 @@ class EpisodeLogger:
         with open(self.log_path, mode='w', newline='') as f:
             writer = csv.writer(f)
             action_headers = [f"a_{i}_count" for i in range(41)]
-            writer.writerow(["episode_interval", "placed_total", "pieces_placed_interval", "lines_total", "lines_interval"] + action_headers)
+            writer.writerow([
+                "time_between_intervals", 
+                "episode_interval", 
+                "placed_total", 
+                "pieces_placed_interval", 
+                "lines_total", 
+                "lines_interval", 
+                "epsilon"] + action_headers
+                )
+
+
+    @classmethod
+    def start_timer(cls) :
+        cls.interval_timer = time.perf_counter()
+
+    @classmethod
+    def restart_timer(cls) :
+        end_time = time.perf_counter()
+        elapsed = end_time - cls.interval_timer
+        cls.interval_timer = end_time
+        return elapsed
 
     @classmethod
     def increase_log_counter(cls) :
@@ -45,18 +68,39 @@ class EpisodeLogger:
         cls.reset_log_counter()
 
 
-    def csv_log_episode(cls, pieces_placed, lines_cleared, action_selection_counts) :
+    def csv_log_episode(cls, pieces_placed, lines_cleared, action_selection_counts, epsilon) :
 
-        row = [cls.episode_count, cls.pieces_placed_sum, pieces_placed, cls.lines_cleared_sum, lines_cleared] + [action_selection_counts[i] for i in range(len(action_selection_counts))]
+        row = [cls.restart_timer(),
+               cls.episode_count, 
+               cls.pieces_placed_sum, 
+               pieces_placed, 
+               cls.lines_cleared_sum, 
+               lines_cleared,
+               epsilon] + [action_selection_counts[i] for i in range(len(action_selection_counts))]
         
         with open(cls.log_path, mode='a', newline='') as f:
             writer = csv.writer(f)
             writer.writerow(row)
 
-    def check_should_console_log_episodes(self, pieces_placed, lines_cleared, action_selection_counts) :
+        cls.restart_timer()
+
+    def check_should_console_log_episodes(self, 
+                                          pieces_placed, 
+                                          lines_cleared, 
+                                          action_selection_counts, 
+                                          epsilon
+                                          ) :
 
         if EpisodeLogger.log_counter >= self.log_counter_max :
-            self.console_log_episode(pieces_placed=pieces_placed, lines_cleared=lines_cleared)
-            self.csv_log_episode(pieces_placed=pieces_placed, lines_cleared=lines_cleared, action_selection_counts=action_selection_counts)
+            self.console_log_episode(
+                pieces_placed=pieces_placed, 
+                lines_cleared=lines_cleared
+                )
+            self.csv_log_episode(
+                pieces_placed=pieces_placed, 
+                lines_cleared=lines_cleared, 
+                action_selection_counts=action_selection_counts, 
+                epsilon=epsilon
+                )
             return True
         return False
