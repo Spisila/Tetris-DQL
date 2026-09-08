@@ -128,7 +128,7 @@ NUM_GAMES   = 8
 SET_TARGET_IN_ACTIONS = 500
 
 LOG_PATH = "logs/training_metrics.csv"
-LOG_TRAINING_IN_EPISODES = 10
+LOG_TRAINING_IN_EPISODES = 100
 
 WATCH_TRANING = True
 
@@ -200,10 +200,11 @@ while True:
             for j in range(output_count) :
                 best.append(torch.argmax(test_qs[i][j]).item())
             action_indexes.append(max(best))
+            action_selection_counts[max(best)] += 1
         else :
             action_indexes.append(greedy)
+            action_selection_counts[greedy] += 1
 
-        action_selection_counts[greedy] += 1
 
 
 

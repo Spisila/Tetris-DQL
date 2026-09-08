@@ -23,15 +23,12 @@ void RLEnv::takePreciseAction(PreciseActions action)
   }
   else
   {
-    if (game_env.hold_used == false)
-    {
-      game_env.hold_used = true;
-      game_env.holdCurrentPiece();
-    }
+    game_env.getBoard().moveTetrominoToColumnWithRotation(3, 1);
+    game_env.hardDrop();
   }
 }
 
-std::array<std::array<int, 9>,41> RLEnv::testStep()
+std::array<std::array<int, 9>, 41> RLEnv::testStep()
 {
 
   int actions_start = static_cast<int>(PreciseActions::ROTATION_0_COLUMN_0);
