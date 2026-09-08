@@ -127,6 +127,7 @@ NUM_NEURONS = 128
 NUM_GAMES   = 8
 SET_TARGET_IN_ACTIONS = 500
 
+LOG_PATH = "logs/training_metrics.csv"
 LOG_TRAINING_IN_EPISODES = 100
 
 WATCH_TRANING = True
@@ -149,7 +150,7 @@ criterion    = nn.MSELoss()
 buffer         = ReplayBuffer()
 epsilon_greedy = EpsilonGreedy(output_size=OUTPUT_DIMENSIONS, epsilon_min=EPSILON_MIN, reduction_amount=EPSILON_REDUCTION) 
 
-logger  = EpisodeLogger(LOG_TRAINING_IN_EPISODES)
+logger  = EpisodeLogger(LOG_TRAINING_IN_EPISODES, log_path=LOG_PATH)
 watcher = EpisodeWatcher(games=games, watch=WATCH_TRANING)
 
 action_count     = 0
