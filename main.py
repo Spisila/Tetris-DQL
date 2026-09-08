@@ -128,7 +128,7 @@ NUM_GAMES   = 8
 SET_TARGET_IN_ACTIONS = 500
 
 LOG_PATH = "logs/training_metrics.csv"
-LOG_TRAINING_IN_EPISODES = 100
+LOG_TRAINING_IN_EPISODES = 10
 
 WATCH_TRANING = True
 
@@ -151,6 +151,9 @@ buffer         = ReplayBuffer()
 epsilon_greedy = EpsilonGreedy(output_size=OUTPUT_DIMENSIONS, epsilon_min=EPSILON_MIN, reduction_amount=EPSILON_REDUCTION) 
 
 logger  = EpisodeLogger(LOG_TRAINING_IN_EPISODES, log_path=LOG_PATH)
+
+action_selection_counts = np.zeros(OUTPUT_DIMENSIONS, dtype=int)
+
 watcher = EpisodeWatcher(games=games, watch=WATCH_TRANING)
 
 action_count     = 0
@@ -168,7 +171,7 @@ while True:
 
     model.check_if_should_set_new_target(policy_net=model, target_net=target_model)
     
-    if logger.check_should_console_log_episodes(pieces_placed=pieces_placed, lines_cleared=games.getLinesCleared()) :
+    if logger.check_should_console_log_episodes(pieces_placed=pieces_placed, lines_cleared=games.getLinesCleared(), action_selection_counts=action_selection_counts) :
         sum_action_count = 0
     watcher.check_should_watch_episodes()
 
@@ -199,6 +202,8 @@ while True:
             action_indexes.append(max(best))
         else :
             action_indexes.append(greedy)
+
+        action_selection_counts[greedy] += 1
 
 
 

@@ -45,17 +45,18 @@ class EpisodeLogger:
         cls.reset_log_counter()
 
 
-    def csv_log_episode(cls, pieces_placed, lines_cleared) :
-        row = [cls.episode_count, cls.pieces_placed_sum, pieces_placed, cls.lines_cleared_sum, lines_cleared]
+    def csv_log_episode(cls, pieces_placed, lines_cleared, action_selection_counts) :
+
+        row = [cls.episode_count, cls.pieces_placed_sum, pieces_placed, cls.lines_cleared_sum, lines_cleared] + [action_selection_counts[i] for i in range(len(action_selection_counts))]
         
         with open(cls.log_path, mode='a', newline='') as f:
             writer = csv.writer(f)
             writer.writerow(row)
 
-    def check_should_console_log_episodes(self, pieces_placed, lines_cleared) :
+    def check_should_console_log_episodes(self, pieces_placed, lines_cleared, action_selection_counts) :
 
         if EpisodeLogger.log_counter >= self.log_counter_max :
             self.console_log_episode(pieces_placed=pieces_placed, lines_cleared=lines_cleared)
-            self.csv_log_episode(pieces_placed=pieces_placed, lines_cleared=lines_cleared)
+            self.csv_log_episode(pieces_placed=pieces_placed, lines_cleared=lines_cleared, action_selection_counts=action_selection_counts)
             return True
         return False
