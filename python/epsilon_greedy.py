@@ -17,4 +17,4 @@ class EpsilonGreedy() :
         if random.random() > self.epsilon :
             return -1
         else :
-             return random.randint(0, self.max_choice)
+            return random.randint(0, self.max_choice)

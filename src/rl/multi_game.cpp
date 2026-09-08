@@ -8,11 +8,11 @@ namespace py = pybind11;
 
 MultiGame::MultiGame(size_t parallel_game_count)
     : barrier(std::thread::hardware_concurrency() + 1),
-      games([](size_t count) { 
+      games([](size_t count)
+            { 
           std::vector<RLEnv> v; 
           v.reserve(count); 
-          return v; 
-      }(parallel_game_count)),
+          return v; }(parallel_game_count)),
       renderer((games.emplace_back(0), games[0].getGameEnv()))
 {
 
@@ -78,7 +78,7 @@ void MultiGame::threadLoop(size_t thread_segment_index)
       break;
     }
 
-    //TODO: Move this outside the loop maybe?
+    // TODO: Move this outside the loop maybe?
     auto thread_segment = segments[thread_segment_index];
 
     for (auto &game : thread_segment)
@@ -94,7 +94,6 @@ std::vector<StepData> MultiGame::stepAll(std::vector<PreciseActions> _actions)
 {
 
   py::gil_scoped_release release;
-
 
   for (int i = 0; i < games.size(); i++)
   {
@@ -120,6 +119,24 @@ void MultiGame::stepThis(int index, Actions _action)
 {
   games[index].step();
 }
+
+// 9  = state values
+// 41 = Possible actions
+// 8 = Amount of games (not dynamic)
+std::array<std::array<std::array<int, 9>,41>, 8> 
+MultiGame::lookAheadAll()
+{
+
+  std::array<std::array<std::array<int, 9>,41>, 8> look_ahead = {};
+
+  for (int i = 0; i < 8; i++) {
+    look_ahead[i] = games[i].testStep();
+  }
+
+  return look_ahead;
+
+}
+
 
 void MultiGame::resetAll()
 {
@@ -163,18 +180,15 @@ std::vector<std::array<int, 9>> MultiGame::getStates()
 
 void MultiGame::initGraphics()
 {
-
   renderer.initWindow();
 }
 
 void MultiGame::render(std::string &generation_counter)
 {
-
   renderer.drawLoop();
 }
 
 void MultiGame::closeGraphics()
 {
-
   renderer.closeWindow();
 }

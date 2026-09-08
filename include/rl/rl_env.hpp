@@ -24,7 +24,7 @@ public:
 
   void takePreciseAction(PreciseActions action);
 
-  auto testStep();
+  std::array<std::array<int, 9>,41> testStep();
 
   void step();
   void reset();

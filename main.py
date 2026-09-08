@@ -50,6 +50,28 @@ def get_all_current_state(games: Tetris_AGENT.MultiGame) :
 
     return scaled_states
 
+def scale_test_states(tests) :
+    
+    scaled_tests = []
+
+    for i in range(len(tests)) :
+
+        scaled_height = sigmoid_scale(tests[i][0], 30)
+        scaled_holes = sigmoid_scale(tests[i][1], 5)
+        scaled_rugosity = sigmoid_scale(tests[i][2], 10)
+        scaled_current_piece = tests[i][3] / 6
+        
+        queue_tensor = torch.tensor(tests[i][4:])
+        hot_one_piece_queue = F.one_hot(queue_tensor, num_classes=7)
+
+        flat_hot_one = hot_one_piece_queue.flatten()
+
+        concat = np.concatenate([[scaled_height], [scaled_holes], [scaled_rugosity], [scaled_current_piece], flat_hot_one])
+
+        scaled_tests.append(concat)
+
+    return scaled_tests
+
 def print_current_state(estado):
     
     agg_height = estado[0]
@@ -147,23 +169,36 @@ while True:
     
     if logger.check_should_console_log_episodes(pieces_placed=pieces_placed, lines_cleared=games.getLinesCleared()) :
         sum_action_count = 0
-
     watcher.check_should_watch_episodes()
 
-    state_t = torch.FloatTensor(state)
-    q_values = model(state_t)
+    look_ahead = games.lookAheadAll()
 
-    action_count = len(q_values)
+    test_qs = []
+
+    for i in range(len(look_ahead)) :
+        scaled_tests = scale_test_states(look_ahead[i])
+        py_array = np.array(scaled_tests)
+        test_t = torch.FloatTensor(py_array)
+        test_qs.append(model(test_t)) # 8x41
+
+          
+    action_count = 8
+    output_count = 41
     action_indexes = []
 
     for i in range(action_count) :
 
-        greedy = epsilon_greedy.greedy()
+        best = []
 
+        greedy = epsilon_greedy.greedy()
+        
         if greedy == -1 :
-            action_indexes.append(torch.argmax(q_values[i]).item())
+            for j in range(output_count) :
+                best.append(torch.argmax(test_qs[i][j]).item())
+            action_indexes.append(max(best))
         else :
             action_indexes.append(greedy)
+
 
 
     action_enums = []

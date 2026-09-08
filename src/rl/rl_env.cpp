@@ -31,22 +31,22 @@ void RLEnv::takePreciseAction(PreciseActions action)
   }
 }
 
-auto RLEnv::testStep()
+std::array<std::array<int, 9>,41> RLEnv::testStep()
 {
 
   int actions_start = static_cast<int>(PreciseActions::ROTATION_0_COLUMN_0);
   int actions_end = static_cast<int>(PreciseActions::HOLD);
 
-  std::array<std::array<int, 9>, 40> state_attempts;
+  std::array<std::array<int, 9>, 41> state_attempts;
 
-  for (int i = actions_start; i < actions_end; i++)
+  for (int i = actions_start; i < actions_end + 1; i++)
   {
 
     auto precise_action_i = static_cast<PreciseActions>(i);
 
     takePreciseAction(precise_action_i);
 
-    state_attempts.at(i) = getGameState();
+    state_attempts[i] = getGameState();
 
     game_env.getBoard().setTetrominoCellsStates(CellState::EMPTY, game_env.getLastPiecePlacedPositions());
   }

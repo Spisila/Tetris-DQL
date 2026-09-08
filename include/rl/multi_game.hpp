@@ -47,6 +47,9 @@ public:
   std::vector<StepData> stepAll(std::vector<PreciseActions> _actions);
   void stepThis(int index, Actions _action);
 
+  // TODO: Make it work with variable game amount
+  std::array<std::array<std::array<int, 9>,41>, 8>  lookAheadAll();
+
   void resetAll();
   void resetThis(int index);
 
@@ -63,4 +66,5 @@ public:
   void closeGraphics();
 
 };
+
 
